@@ -18,7 +18,7 @@ public class Assassin extends StockClass {
 	}
 	@Override
 	public void fire() {
-		if ((state == STATE.STANDING || state == STATE.JUMPING) && Gdx.input.justTouched() && bulletCount > 0) {
+		if (bulletCount > 0) {
 			float mouseX = Gdx.input.getX();
 			float mouseY = Gdx.input.getY();
 			Vector3 mousePos = new Vector3 (mouseX, mouseY, 0);

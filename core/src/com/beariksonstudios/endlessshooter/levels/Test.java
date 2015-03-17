@@ -50,7 +50,7 @@ public class Test implements Screen {
 
 	
 	public Test() {
-		world = new World(new Vector2(0,-9.8f), true); // real life gravity mul by ten
+		world = new World(new Vector2(0,-43.0f), true); // real life gravity mul by ten
 		world.setContactListener(new ContactListener(){
 
 
@@ -144,11 +144,9 @@ public class Test implements Screen {
 		labelSkin = Assets.manager.get("data/uiskin.json", Skin.class);
 		debugger = new Debugger(labelSkin, batch, world);
 		characters = new Array<Character>();
-		characters.add(PlayerFactory.buildChar(true, PlayerType.ASSASSIN, worldMap.getStartPosition(), 
+		characters.add(PlayerFactory.buildChar(true, PlayerType.SNIPER, worldMap.getStartPosition(), 
 											world, worldScale, camera));
-		characters.add(PlayerFactory.buildChar(true, PlayerType.SNIPER, 
-											worldMap.getStartPosition().add(characters.first().getSize().x, 0), 
-											world, worldScale, camera));
+		
 		
 		input = new InputHandler();
 		

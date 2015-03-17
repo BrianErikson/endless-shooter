@@ -12,6 +12,7 @@ public interface Character {
 	public void moveLeft();
 	public void moveRight();
 	public void fire();
+	public void stop();
 	public void draw(Box2DDebugRenderer renderer, Camera camera, SpriteBatch batch);
 	
 	public Vector2 getPosition();

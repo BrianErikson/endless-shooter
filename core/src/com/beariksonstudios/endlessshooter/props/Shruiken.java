@@ -27,7 +27,7 @@ public class Shruiken implements Bullet {
 	private World world;
 	
 	public Shruiken(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Assassin character){
-		bulletSpeed = 1f;
+		bulletSpeed = 2f;
 		BodyDef bd = new BodyDef();
 		bd.active = true;
 		bd.allowSleep = true;

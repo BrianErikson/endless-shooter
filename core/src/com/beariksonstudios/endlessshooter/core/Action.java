@@ -41,4 +41,13 @@ public interface Action {
 			player.moveRight();
 		}
 	}
+	class StopAction implements Action {
+
+		@Override
+		public void execute(Character player) {
+			player.stop();
+			
+		}
+	}
 }
+

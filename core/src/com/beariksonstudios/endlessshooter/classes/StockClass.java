@@ -55,23 +55,22 @@ public abstract class StockClass implements Character {
 		this.world = physicsWorld;
 		this.player = player;
 		this.isLocal = local;
-		moveSpeed = 10;
-		jumpSpeed = 10;
+		moveSpeed = 200;
+		jumpSpeed = 20;
 		bArray = new Array <Bullet> ();
 		BodyDef bd = new BodyDef();
 		bd.allowSleep = false; // object does not need to sleep due to player control
 		bd.position.set(pos);
 		bd.type = BodyDef.BodyType.DynamicBody;
 		
-		bulletCount = 2;
+		bulletCount = 100;
 		
 		this.body = world.createBody(bd);
 		body.setFixedRotation(true);
 		body.setUserData(new RangeCharData(this));
 		
 		FixtureDef fd = new FixtureDef();
-		fd.density = 80.7f; // weight of average human
-		fd.friction = 2f;
+		fd.density = 1.0f; // weight of average human
 		PolygonShape shape = new PolygonShape();
 		width = 1.6f * 0.3048f * 0.5f * Assets.TILE_SIZE * scale;
 		height = 5.9f * 0.3048f * 0.5f * Assets.TILE_SIZE * scale;
@@ -90,9 +89,9 @@ public abstract class StockClass implements Character {
 
 	@Override
 	public void jump() {
-		if (state == STATE.STANDING) {
+		if (state == STATE.STANDING) { 
 			state = STATE.JUMPING;
-			float force = body.getMass()*jumpSpeed;
+			float force = jumpSpeed;
 			body.applyLinearImpulse(new Vector2(0, force), new Vector2(0,1), true);
 		}
 	}
@@ -107,28 +106,32 @@ public abstract class StockClass implements Character {
 
 	@Override
 	public void moveLeft() {
-		float force = -moveSpeed * body.getMass();
-		body.applyForceToCenter(new Vector2(force, 0), true);
-		state = STATE.STANDING;
+		body.setLinearVelocity(new Vector2(-moveSpeed*Gdx.graphics.getDeltaTime(), body.getLinearVelocity().y ));
 	}
 
 	@Override
 	public void moveRight() {
-		float force = moveSpeed * body.getMass();
-		body.applyForceToCenter(new Vector2(force, 0), true);
-		state = STATE.STANDING;
+		body.setLinearVelocity(new Vector2(moveSpeed*Gdx.graphics.getDeltaTime(), body.getLinearVelocity().y ));
 	}
 
 	@Override
 	public void fire() {
+		
+	}
+	
+	@Override 
+	public void stop() {
+		body.setLinearVelocity(new Vector2(0, body.getLinearVelocity().y));
 	}
 
 	@Override
 	public void draw(Box2DDebugRenderer renderer, Camera camera, SpriteBatch batch) {
 		
+		
+		
 		if (body.getLinearVelocity().y > 0.0f) state = STATE.JUMPING;
-		if (body.getLinearVelocity().y == 0.0f && state != STATE.CROUCHING) state = STATE.STANDING;
-		if (body.getLinearVelocity().y < 0.0f && state != STATE.JUMPING) state = STATE.FALLING;
+		if (body.getLinearVelocity().y == 0.0f && state != STATE.CROUCHING && state != STATE.JUMPING) state = STATE.STANDING;
+		if (body.getLinearVelocity().y < 0.0f) state = STATE.FALLING;
 		
 		for (int i = 0; i < bArray.size; i ++){
 			bArray.get(i).draw(camera, batch);

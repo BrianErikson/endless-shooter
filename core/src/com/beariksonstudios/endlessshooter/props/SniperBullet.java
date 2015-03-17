@@ -27,14 +27,13 @@ public class SniperBullet implements Bullet {
 	private World world;
 	
 	public SniperBullet(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Sniper character) {
-		bulletSpeed = 4f;
+		bulletSpeed = 8f;
 		BodyDef bd = new BodyDef();
 		bd.active = true;
 		bd.allowSleep = true;
 		bd.awake = true;
 		bd.bullet = true;
 		bd.fixedRotation = true;
-		bd.position.set(pos);
 		bd.linearVelocity.setAngle(degAngle);
 		bd.type = BodyDef.BodyType.DynamicBody;
 		
@@ -49,15 +48,16 @@ public class SniperBullet implements Bullet {
 		fd.restitution = 1;
 		CircleShape shape = new CircleShape();
 		float height = 5.9f * 0.3048f * 0.5f * Assets.TILE_SIZE * scale;
-		height /= 10;
+		height /= 20;
 		shape.setRadius(height);
+		body.setTransform(pos.add(new Vector2((height*2)*dir.x, (height*2)*dir.y)), degAngle);
 		fd.shape = shape;
 		
 		texture = new Texture (Gdx.files.internal("data/bulletART.png"));
 		sprite = new Sprite (texture);
 		sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
 		
-		sprite.setScale(0.003f);
+		sprite.setScale(0.001f);
 		
 		body.createFixture(fd);
 		

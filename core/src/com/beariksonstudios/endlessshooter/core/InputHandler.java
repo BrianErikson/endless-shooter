@@ -11,10 +11,12 @@ public class InputHandler implements InputProcessor{
 	private Action crouch;
 	private Action moveLeft;
 	private Action moveRight;
+	private Action stop;
 	private Action fire;
 	private Action secondary;
 	private boolean mouseClicked;
 	private int button;
+	
 	
 	public InputHandler() {
 		Gdx.input.setInputProcessor(this);
@@ -23,54 +25,22 @@ public class InputHandler implements InputProcessor{
 		moveLeft = new Action.MoveLeftAction();
 		moveRight = new Action.MoveRightAction();
 		fire = new Action.FireAction();
+		stop = new Action.StopAction();
 		secondary = new Action.FireAction(); //temp
 	}
 	
 	public void handleInput(Character character) {
-		if (character.isLocal()) {
-			switch(character.getPlayer()) {
-			case ONE:
-				if (Gdx.input.isKeyPressed(Input.Keys.W)) jump.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) jump.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.S)) crouch.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.A)) moveLeft.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.D)) moveRight.execute(character);
-				if (mouseClicked && button == Buttons.LEFT) fire.execute(character);
-				if (mouseClicked && button == Buttons.RIGHT) secondary.execute(character);
-				break;
-			case TWO:
-				if (Gdx.input.isKeyPressed(Input.Keys.I)) jump.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.K)) crouch.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.J)) moveLeft.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.L)) moveRight.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.U)) fire.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.O)) secondary.execute(character);
-				if (mouseClicked && button == Buttons.LEFT) fire.execute(character);
-				if (mouseClicked && button == Buttons.RIGHT) secondary.execute(character);
-				break;
-			case THREE:
-				if (Gdx.input.isKeyPressed(Input.Keys.W)) jump.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) jump.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.S)) crouch.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.A)) moveLeft.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.D)) moveRight.execute(character);
-				if (mouseClicked && button == Buttons.LEFT) fire.execute(character);
-				if (mouseClicked && button == Buttons.RIGHT) secondary.execute(character);
-				break;
-			case FOUR:
-				if (Gdx.input.isKeyPressed(Input.Keys.W)) jump.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) jump.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.S)) crouch.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.A)) moveLeft.execute(character);
-				if (Gdx.input.isKeyPressed(Input.Keys.D)) moveRight.execute(character);
-				if (mouseClicked && button == Buttons.LEFT) fire.execute(character);
-				if (mouseClicked && button == Buttons.RIGHT) secondary.execute(character);
-				break;
-			}
-		}
-		else {
-			// PLACEHOLDER FOR NETWORK PLAY
-		}
+		if (Gdx.input.isKeyPressed(Input.Keys.W)) jump.execute(character);
+		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) jump.execute(character);
+		if (Gdx.input.isKeyPressed(Input.Keys.S)) crouch.execute(character);
+		
+		if (Gdx.input.isKeyPressed(Input.Keys.A)) moveLeft.execute(character);
+		else if (Gdx.input.isKeyPressed(Input.Keys.D)) moveRight.execute(character);
+		else {stop.execute(character);}
+		
+		
+		if (Gdx.input.isButtonPressed(Buttons.LEFT) && Gdx.input.justTouched()) fire.execute(character);
+		if (mouseClicked && button == Buttons.RIGHT && Gdx.input.justTouched()) secondary.execute(character);
 	}
 
 	@Override
@@ -93,17 +63,10 @@ public class InputHandler implements InputProcessor{
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if (button == Input.Buttons.LEFT) {
-	          mouseClicked = true;
-	          this.button = button;
-	          return true;
-	      }
-	      return false;
+		return false;
     }
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		mouseClicked = false;
-		this.button = 0;
 		return true;
 	}
 
