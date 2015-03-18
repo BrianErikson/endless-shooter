@@ -29,12 +29,7 @@ public abstract class StockClass implements Character {
 	protected World world;
 	protected Body body;
 	protected float scale;
-	protected enum STATE {
-		STANDING,
-		CROUCHING,
-		JUMPING,
-		FALLING
-	};
+	
 	
 	protected STATE state;
 	protected float width;
@@ -45,6 +40,7 @@ public abstract class StockClass implements Character {
 	protected Array<Bullet> bArray;
 	protected long bounceTimer;
 	protected int bulletCount;
+	protected int jumpCount;
 	
 	public StockClass(boolean local, Player player, Vector2 startPos, World physicsWorld, 
 			float scale, Camera camera) {
@@ -69,6 +65,7 @@ public abstract class StockClass implements Character {
 		body.setFixedRotation(true);
 		body.setUserData(new RangeCharData(this));
 		
+		
 		FixtureDef fd = new FixtureDef();
 		fd.density = 1.0f; // weight of average human
 		PolygonShape shape = new PolygonShape();
@@ -89,11 +86,13 @@ public abstract class StockClass implements Character {
 
 	@Override
 	public void jump() {
-		if (state == STATE.STANDING) { 
-			state = STATE.JUMPING;
-			float force = jumpSpeed;
-			body.applyLinearImpulse(new Vector2(0, force), new Vector2(0,1), true);
-		}
+			if (state == STATE.STANDING || state == STATE.FALLING || state == STATE.JUMPING && jumpCount < 2) { 
+				state = STATE.JUMPING;
+				float force = jumpSpeed;
+				body.applyLinearImpulse(new Vector2(0, force), new Vector2(0,1), true);
+				jumpCount++;
+				System.out.println(jumpCount);
+			}
 	}
 
 	@Override
@@ -130,7 +129,6 @@ public abstract class StockClass implements Character {
 		
 		
 		if (body.getLinearVelocity().y > 0.0f) state = STATE.JUMPING;
-		if (body.getLinearVelocity().y == 0.0f && state != STATE.CROUCHING && state != STATE.JUMPING) state = STATE.STANDING;
 		if (body.getLinearVelocity().y < 0.0f) state = STATE.FALLING;
 		
 		for (int i = 0; i < bArray.size; i ++){
@@ -185,5 +183,17 @@ public abstract class StockClass implements Character {
 	public void addBullet() {
 		bulletCount +=1;
 		
+	}
+	@Override
+	public void setState(STATE newState){
+		this.state = newState;
+		if(state == STATE.STANDING){
+			jumpCount = 0;
+			System.out.println("Standing");
+		}
+	}
+	@Override
+	public STATE getState(){
+		return state;
 	}
 }

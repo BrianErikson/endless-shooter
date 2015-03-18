@@ -15,6 +15,7 @@ import com.beariksonstudios.endlessshooter.classes.StockClass.RangeCharData;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
 import com.beariksonstudios.endlessshooter.core.Character;
+import com.beariksonstudios.endlessshooter.core.Character.STATE;
 import com.beariksonstudios.endlessshooter.core.InputHandler;
 import com.beariksonstudios.endlessshooter.core.PlayerFactory;
 import com.beariksonstudios.endlessshooter.core.PlayerFactory.PlayerType;
@@ -101,6 +102,23 @@ public class Test implements Screen {
 						RangeCharData cData = (RangeCharData) obj;
 						collideCharBody = body;
 						collideChar = cData.character;
+						
+					}
+				}
+				Object objA = contact.getFixtureA().getBody().getUserData();
+				Object objB = contact.getFixtureB().getBody().getUserData();
+				if(objA instanceof RangeCharData){
+					RangeCharData cData = (RangeCharData) objA;
+					collideChar = cData.character;
+					if(objB instanceof String){
+						if(objB == "object ground"){
+							collideChar.setState(STATE.STANDING);
+						}
+						else if(objB == "object walls"){
+							if(collideChar.getState() == STATE.JUMPING || collideChar.getState() == STATE.FALLING){
+								
+							}
+						}
 					}
 				}
 				if (readyPickup && collideCharBody != null){

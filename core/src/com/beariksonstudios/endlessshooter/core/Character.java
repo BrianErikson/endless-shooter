@@ -13,6 +13,14 @@ public interface Character {
 	public void moveRight();
 	public void fire();
 	public void stop();
+	public void setState(STATE newState);
+	public STATE getState();
+	public enum STATE {
+		STANDING,
+		CROUCHING,
+		JUMPING,
+		FALLING
+	};
 	public void draw(Box2DDebugRenderer renderer, Camera camera, SpriteBatch batch);
 	
 	public Vector2 getPosition();
