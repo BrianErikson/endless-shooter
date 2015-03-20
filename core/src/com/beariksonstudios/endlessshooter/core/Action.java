@@ -1,5 +1,7 @@
 package com.beariksonstudios.endlessshooter.core;
 
+import com.beariksonstudios.endlessshooter.classes.Character;
+
 public interface Action {
 
 	void execute(Character player);

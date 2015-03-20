@@ -9,10 +9,4 @@ public interface Bullet {
 	void draw(Camera camera, SpriteBatch batch);
 	
 	Body getBody ();
-	
-	boolean isReadyPickup();
-	
-	void setReadyPickup(boolean state);
-	
-	void destroyBullet ();
 }
