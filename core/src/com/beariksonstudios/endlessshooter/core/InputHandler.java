@@ -14,8 +14,6 @@ public class InputHandler implements InputProcessor{
 	private Action stop;
 	private Action fire;
 	private Action secondary;
-	private boolean mouseClicked;
-	private int button;
 	
 	
 	public InputHandler() {
@@ -40,7 +38,7 @@ public class InputHandler implements InputProcessor{
 		
 		
 		if (Gdx.input.isButtonPressed(Buttons.LEFT) && Gdx.input.justTouched()) fire.execute(character);
-		if (mouseClicked && button == Buttons.RIGHT && Gdx.input.justTouched()) secondary.execute(character);
+		if (Gdx.input.isButtonPressed(Buttons.RIGHT) && Gdx.input.justTouched()) secondary.execute(character);
 	}
 
 	@Override
