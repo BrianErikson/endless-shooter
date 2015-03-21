@@ -1,76 +1,96 @@
 package com.beariksonstudios.endlessshooter.tools;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
-public class Debugger {
-	
-	private float delay;
-	private SpriteBatch batch;
-	private Label fpsLabel;
-	private World world;
-	private Label jointLabel;
-	private Label bodyLabel;
-	private float updateRate;
+public class Debugger extends Actor {
 
-	/** For standard debug use **/
-	public Debugger(Skin skin, SpriteBatch batch) {
-		this.batch = batch;
-		delay = 0f;
-		updateRate = 0.5f; // Update rate in seconds
-		fpsLabel = new Label("FPS: init...", skin);
-	}
-	
-	/** For physics and standard debug use **/
-	public Debugger(Skin skin, SpriteBatch batch, World world) {
-		this.batch = batch;
-		this.world = world;
-		delay = 0f;
-		updateRate = 0.5f; // Update rate in seconds
-		fpsLabel = new Label("FPS: init...", skin);
-		jointLabel = new Label("Joint Count: init..." + world.getJointCount(), skin);
-		bodyLabel = new Label("Body Count: init..." + world.getBodyCount(), skin);
-	}
-	
-	/** Updates the FPS counter twice a second.
-	 * Begin SpriteBatch before calling. **/
-	public void drawFPS(float delta, Vector2 pos) {
-		if (updateCycle(delta)) {
-			int fps = (int) Math.floor(1/delta);
-			fpsLabel.setText("FPS: " + fps);
-		}
-		fpsLabel.setPosition(pos.x, pos.y);
-		fpsLabel.draw(batch, 1f);
-	}
-	
-	/** Displays World body and joint info.
-	 * Begin SpriteBatch before calling. **/
-	public void drawPhys(float delta, Vector2 pos) {
-		if (updateCycle(delta)) {
-			bodyLabel.setText("Body Count: " + world.getBodyCount());
-			jointLabel.setText("Joint Count: " + world.getJointCount());
-		}
-		bodyLabel.setPosition(pos.x, pos.y);
-		Vector2 offset = new Vector2(pos.x, pos.y - getLabelHeight());
-		jointLabel.setPosition(offset.x, offset.y);
-		
-		bodyLabel.draw(batch, 1f);
-		jointLabel.draw(batch, 1f);
-	}
-	
-	public float getLabelHeight() {
-		return fpsLabel.getHeight();
-	}
-	
-	public boolean updateCycle(float deltaTime) {
-		delay += deltaTime;
-		if (delay >= updateRate) {
-			delay = 0f;
-			return true;
-		}
-		else return false;
-	}
+    private final Label fpsLabel;
+    private Label jointLabel;
+    private Label bodyLabel;
+    private float delay;
+    private World world;
+    private Table table;
+    private float updateRate;
+    private TYPE debugType;
+
+    /**
+     * For standard debug use *
+     */
+    public Debugger(Skin skin, Stage stage) {
+        delay = 0f;
+        updateRate = 0.5f; // Update rate in seconds
+        table = new Table();
+        fpsLabel = new Label("FPS: init...", skin);
+        table.addActor(fpsLabel);
+        table.pack();
+        stage.addActor(table);
+        debugType = TYPE.STANDARD;
+    }
+
+    /**
+     * For physics and standard debug use *
+     */
+    public Debugger(Skin skin, Stage stage, World world) {
+        debugType = TYPE.PHYSICS;
+        this.world = world;
+        delay = 0f;
+        updateRate = 0.5f; // Update rate in seconds
+
+        table = new Table();
+
+        fpsLabel = new Label("FPS: init...", skin);
+        table.addActor(fpsLabel);
+        table.row();
+
+        jointLabel = new Label("Joint Count: init..." + world.getJointCount(), skin);
+        table.addActor(jointLabel);
+        table.row();
+
+        bodyLabel = new Label("Body Count: init..." + world.getBodyCount(), skin);
+        table.addActor(bodyLabel);
+
+        table.pack();
+        stage.addActor(table);
+        table.setDebug(true);
+    }
+
+    public boolean updateCycle(float deltaTime) {
+        delay += deltaTime;
+        if (delay >= updateRate) {
+            delay = 0f;
+            return true;
+        } else return false;
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        super.draw(batch, parentAlpha);
+        float delta = Gdx.graphics.getDeltaTime();
+        if (updateCycle(delta)) {
+            int fps = (int) Math.floor(1 / delta);
+            fpsLabel.setText("FPS: " + fps);
+            if (debugType == TYPE.PHYSICS) {
+                bodyLabel.setText("Body Count: " + world.getBodyCount());
+                jointLabel.setText("Joint Count: " + world.getJointCount());
+            }
+        }
+    }
+
+    @Override
+    public void setPosition(float x, float y) {
+        super.setPosition(x, y);
+        table.setPosition(x, y);
+    }
+
+    private enum TYPE {
+        STANDARD,
+        PHYSICS
+    }
 }

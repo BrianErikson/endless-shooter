@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 
 public interface Bullet {
 
-	void draw(Camera camera, SpriteBatch batch);
-	
-	Body getBody ();
+    void draw(Camera camera, SpriteBatch batch);
+
+    Body getBody();
 }
