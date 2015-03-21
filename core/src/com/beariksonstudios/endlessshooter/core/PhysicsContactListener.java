@@ -1,6 +1,9 @@
 package com.beariksonstudios.endlessshooter.core;
 
-import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.beariksonstudios.endlessshooter.classes.Character;
 
 /**
@@ -11,11 +14,10 @@ public class PhysicsContactListener implements ContactListener {
     public void beginContact(Contact contact) {
         Object objA = contact.getFixtureA().getBody().getUserData();
         Object objB = contact.getFixtureB().getBody().getUserData();
-        
-        if(objA instanceof Character.RangeCharData){
+
+        if (objA instanceof Character.RangeCharData) {
             handleCharacterContact(objA, objB);
-        }
-        else if(objB instanceof Character.RangeCharData){
+        } else if (objB instanceof Character.RangeCharData) {
             handleCharacterContact(objB, objA);
         }
     }
@@ -41,13 +43,12 @@ public class PhysicsContactListener implements ContactListener {
     private void handleCharacterContact(Object source, Object other) {
         Character.RangeCharData cData = (Character.RangeCharData) source;
         Character character = cData.character;
-        if(other instanceof String){
+        if (other instanceof String) {
             System.out.println(other);
-            if(other.equals("object ground")){
+            if (other.equals("object ground")) {
                 character.setState(Character.STATE.STANDING);
-            }
-            else if(other.equals("object walls")){
-                if(character.getState() == Character.STATE.JUMPING || character.getState() == Character.STATE.FALLING){
+            } else if (other.equals("object walls")) {
+                if (character.getState() == Character.STATE.JUMPING || character.getState() == Character.STATE.FALLING) {
                     //TODO Placeholder
                 }
             }
