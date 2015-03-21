@@ -2,37 +2,21 @@ package com.beariksonstudios.endlessshooter.levels;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.beariksonstudios.endlessshooter.classes.Character;
 import com.beariksonstudios.endlessshooter.classes.Character.RangeCharData;
+import com.beariksonstudios.endlessshooter.classes.Character.STATE;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
-import com.beariksonstudios.endlessshooter.classes.Character;
-import com.beariksonstudios.endlessshooter.classes.Character.STATE;
 import com.beariksonstudios.endlessshooter.core.InputHandler;
-import com.beariksonstudios.endlessshooter.props.Shruiken;
-import com.beariksonstudios.endlessshooter.props.Shruiken.Data;
-import com.beariksonstudios.endlessshooter.props.SniperBullet.SBulletData;
 import com.beariksonstudios.endlessshooter.tools.Debugger;
 import com.beariksonstudios.endlessshooter.tools.WorldMap;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.ContactListener;
-import com.badlogic.gdx.physics.box2d.Manifold;
-import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.Array;
 
 public class Test implements Screen {
 	private World world;
@@ -140,11 +124,13 @@ public class Test implements Screen {
 			}
 			
 		});
-		zoom = 26.0f;
+		zoom = 1f;
 		UIScale = 100.0f;
 		worldScale = Assets.WORLD_TO_BOX;
-		camera = new OrthographicCamera(Gdx.graphics.getWidth()/zoom, 
-										Gdx.graphics.getHeight()/zoom);
+		camera = new OrthographicCamera(Gdx.graphics.getWidth()/Assets.BOX_TO_WORLD,
+                Gdx.graphics.getWidth()/Assets.BOX_TO_WORLD * (Gdx.graphics.getHeight()/Gdx.graphics.getWidth()));
+        camera.zoom = zoom;
+
 		UICamera = new OrthographicCamera(camera.viewportWidth*UIScale, camera.viewportHeight*UIScale);
 		batch = new SpriteBatch();
 		batch.setProjectionMatrix(camera.combined);
@@ -161,7 +147,7 @@ public class Test implements Screen {
 		input = new InputHandler();
 		
 		UICamera.translate(UICamera.viewportWidth/2, UICamera.viewportHeight/2);
-		camera.translate(camera.viewportWidth/2, camera.viewportHeight/2);
+		camera.position.set(character.getPosition(), 0);
 		camera.update();
 		UICamera.update();
 	}
@@ -186,10 +172,9 @@ public class Test implements Screen {
 		batch.begin();
 		debugger.drawFPS(delta, new Vector2(0,UICamera.viewportHeight - debugger.getLabelHeight()));
 		debugger.drawPhys(delta, new Vector2(0,UICamera.viewportHeight - (debugger.getLabelHeight()*2)));
-		
-		
-			input.handleInput(character);
-			character.draw(boxRenderer, camera, batch);
+
+        input.handleInput(character);
+        character.draw(boxRenderer, camera, batch);
 		
 		batch.end();
 		
@@ -200,9 +185,10 @@ public class Test implements Screen {
 
 	@Override
 	public void resize(int width, int height) {
-		//camera.viewportHeight = height;
-		//camera.viewportWidth = width;
-		//camera.update();
+        System.out.println("Resize! " +width + " " + height);
+        camera.viewportWidth = width/Assets.BOX_TO_WORLD;
+		camera.viewportHeight = camera.viewportWidth * height / width;
+		camera.update();
 	}
 
 	@Override

@@ -3,26 +3,14 @@ package com.beariksonstudios.endlessshooter.classes;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.*;
 import com.beariksonstudios.endlessshooter.core.Assets;
-import com.beariksonstudios.endlessshooter.core.Bullet;
-import com.beariksonstudios.endlessshooter.props.Shruiken;
 import com.beariksonstudios.endlessshooter.props.SniperBullet;
-import com.beariksonstudios.endlessshooter.props.Shruiken.Data;
-import com.beariksonstudios.endlessshooter.props.SniperBullet.SBulletData;
-import com.beariksonstudios.endlessshooter.tools.WorldMap;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.math.MathUtils;
 
 public class Character {
-	protected Vector2 pos;
 	protected int moveSpeed;
 	protected int jumpSpeed;
 	protected World world;
@@ -48,14 +36,13 @@ public class Character {
 			float scale, Camera camera) {
 		bounceTimer = 100;
 		this.camera = camera;
-		this.pos = startPos;
 		this.scale = scale;
 		this.world = physicsWorld;
 		moveSpeed = 200;
 		jumpSpeed = 20;
 		BodyDef bd = new BodyDef();
 		bd.allowSleep = false; // object does not need to sleep due to player control
-		bd.position.set(pos);
+		bd.position.set(startPos);
 		bd.type = BodyDef.BodyType.DynamicBody;
 		
 		

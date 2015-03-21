@@ -24,6 +24,7 @@ public class EndlessShooter extends Game {
 
 	@Override
 	public void resize(int width, int height) {
+        this.getScreen().resize(width, height);
 	}
 
 	@Override
