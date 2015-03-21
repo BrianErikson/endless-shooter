@@ -12,7 +12,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
-import com.beariksonstudios.endlessshooter.classes.Sniper;
+import com.beariksonstudios.endlessshooter.classes.Character;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
 import com.beariksonstudios.endlessshooter.props.Shruiken.Data;
@@ -26,7 +26,7 @@ public class SniperBullet implements Bullet {
 	private boolean pickupReady;
 	private World world;
 	
-	public SniperBullet(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Sniper character) {
+	public SniperBullet(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Character character) {
 		bulletSpeed = 8f;
 		BodyDef bd = new BodyDef();
 		bd.active = true;
@@ -74,7 +74,7 @@ public class SniperBullet implements Bullet {
 		public String name = "SniperBullet";
 		public int bounces = 0;
 		public boolean isRotating = true;
-		public Sniper character = null;
+		public Character character = null;
 		public SniperBullet bullet = null;
 		
 		public SBulletData (SniperBullet bullet){
@@ -92,20 +92,5 @@ public class SniperBullet implements Bullet {
 	@Override
 	public Body getBody() {
 		return body;
-	}
-	@Override
-	public boolean isReadyPickup() {
-		// TODO Auto-generated method stub
-		return pickupReady;
-	}
-	@Override
-	public void setReadyPickup(boolean state) {
-		pickupReady = state;
-		
-	}
-	@Override
-	public void destroyBullet() {
-		world.destroyBody(body);
-		
 	}
 }

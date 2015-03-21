@@ -4,7 +4,11 @@ import java.util.Stack;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.MapObject;
@@ -34,6 +38,7 @@ public class WorldMap {
 	private OrthogonalTiledMapRenderer renderer;
 	private float scale;
 	private World world;
+	private Model model;
 	
 	/** instantiates a new world map. Ensure, in Tiled, that the object layers start with "object",
 	 * and if it is a collider name it "object collider 1", object collider 2", etc. If it is a death collider,
@@ -55,7 +60,7 @@ public class WorldMap {
 		Stack<Integer> drawableLayers = new Stack<Integer>();
 		Stack<Integer> noDrawLayers = new Stack<Integer>();
 		for (int i = 0; i < layers.getCount(); i++) {
-			if (!layers.get(i).getName().contains("object")) {
+			if (layers.get(i).getName().contains("Tile")) {
 				drawableLayers.add(i);
 			}
 			else {
@@ -82,7 +87,7 @@ public class WorldMap {
 	
 	public void draw(OrthographicCamera camera) {
 		for(int i = 0; i < layers.getCount(); i++) {
-			if (!layers.get(i).getName().contains("object")) {
+			if (!layers.get(i).getName().contains("start")) {
 				renderer.setView(camera);
 				renderer.render(drawLayers);
 			}
@@ -132,6 +137,7 @@ public class WorldMap {
 
 				fd.shape = shape;
 				Body body = world.createBody(bd);
+				body.setUserData(layer.getName());
 				body.createFixture(fd);
 				
 				shape.dispose();
@@ -213,8 +219,9 @@ public class WorldMap {
 		MapLayers colliders = new MapLayers();
 		for (int objIndex : collisionLayers) {
 			String name = layers.get(objIndex).getName().toLowerCase();
-			if (name.contains("collider")) {
+			if (name.contains("ground") || name.contains("walls")) {
 				colliders.add(layers.get(objIndex));
+				System.out.println("layersfound");
 			}
 		}
 		return colliders;

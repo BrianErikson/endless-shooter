@@ -7,9 +7,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
-import com.beariksonstudios.endlessshooter.core.Character;
-import com.beariksonstudios.endlessshooter.core.PlayerFactory.Player;
 import com.beariksonstudios.endlessshooter.props.Shruiken;
+import com.beariksonstudios.endlessshooter.props.SniperBullet;
 import com.beariksonstudios.endlessshooter.props.Shruiken.Data;
 import com.beariksonstudios.endlessshooter.props.SniperBullet.SBulletData;
 import com.beariksonstudios.endlessshooter.tools.WorldMap;
@@ -22,54 +21,51 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.math.MathUtils;
 
-public abstract class StockClass implements Character {
+public class Character {
 	protected Vector2 pos;
 	protected int moveSpeed;
 	protected int jumpSpeed;
 	protected World world;
 	protected Body body;
 	protected float scale;
-	protected enum STATE {
+	
+	
+	protected STATE state;
+	public enum STATE {
 		STANDING,
 		CROUCHING,
 		JUMPING,
-		FALLING
+		FALLING,
+		DYING
 	};
-	
-	protected STATE state;
 	protected float width;
 	protected float height;
-	protected Player player;
-	protected boolean isLocal;
 	protected Camera camera;
-	protected Array<Bullet> bArray;
 	protected long bounceTimer;
-	protected int bulletCount;
+	protected int jumpCount;
 	
-	public StockClass(boolean local, Player player, Vector2 startPos, World physicsWorld, 
+	public Character(Vector2 startPos, World physicsWorld, 
 			float scale, Camera camera) {
 		bounceTimer = 100;
 		this.camera = camera;
 		this.pos = startPos;
 		this.scale = scale;
 		this.world = physicsWorld;
-		this.player = player;
-		this.isLocal = local;
 		moveSpeed = 200;
 		jumpSpeed = 20;
-		bArray = new Array <Bullet> ();
 		BodyDef bd = new BodyDef();
 		bd.allowSleep = false; // object does not need to sleep due to player control
 		bd.position.set(pos);
 		bd.type = BodyDef.BodyType.DynamicBody;
 		
-		bulletCount = 100;
 		
 		this.body = world.createBody(bd);
 		body.setFixedRotation(true);
 		body.setUserData(new RangeCharData(this));
 		
+		
 		FixtureDef fd = new FixtureDef();
+		fd.friction = 0f;
 		fd.density = 1.0f; // weight of average human
 		PolygonShape shape = new PolygonShape();
 		width = 1.6f * 0.3048f * 0.5f * Assets.TILE_SIZE * scale;
@@ -87,16 +83,16 @@ public abstract class StockClass implements Character {
 		}
 	}
 
-	@Override
 	public void jump() {
-		if (state == STATE.STANDING) { 
-			state = STATE.JUMPING;
-			float force = jumpSpeed;
-			body.applyLinearImpulse(new Vector2(0, force), new Vector2(0,1), true);
-		}
+			if ((state == STATE.STANDING || state == STATE.FALLING || state == STATE.JUMPING) && jumpCount < 2) { 
+				state = STATE.JUMPING;
+				float force = jumpSpeed;
+				body.applyLinearImpulse(new Vector2(0, force), new Vector2(0,1), true);
+				jumpCount++;
+				System.out.println(jumpCount);
+			}
 	}
 
-	@Override
 	public void crouch() {
 		if (state == STATE.STANDING) {
 			// duck? drop through thin platforms?
@@ -104,86 +100,60 @@ public abstract class StockClass implements Character {
 		}
 	}
 
-	@Override
 	public void moveLeft() {
 		body.setLinearVelocity(new Vector2(-moveSpeed*Gdx.graphics.getDeltaTime(), body.getLinearVelocity().y ));
 	}
 
-	@Override
 	public void moveRight() {
 		body.setLinearVelocity(new Vector2(moveSpeed*Gdx.graphics.getDeltaTime(), body.getLinearVelocity().y ));
 	}
 
-	@Override
-	public void fire() {
-		
-	}
-	
-	@Override 
 	public void stop() {
 		body.setLinearVelocity(new Vector2(0, body.getLinearVelocity().y));
 	}
 
-	@Override
 	public void draw(Box2DDebugRenderer renderer, Camera camera, SpriteBatch batch) {
-		
-		
-		
 		if (body.getLinearVelocity().y > 0.0f) state = STATE.JUMPING;
-		if (body.getLinearVelocity().y == 0.0f && state != STATE.CROUCHING && state != STATE.JUMPING) state = STATE.STANDING;
 		if (body.getLinearVelocity().y < 0.0f) state = STATE.FALLING;
-		
-		for (int i = 0; i < bArray.size; i ++){
-			bArray.get(i).draw(camera, batch);
-		}
-		bounceTimer -= Gdx.graphics.getDeltaTime();
-		if (bounceTimer <= 0){
-			for (Bullet bullet: bArray){
-				if(bullet.getBody().getLinearVelocity().equals(new Vector2 (0,0))){
-					if(bullet.getBody().getUserData() instanceof Data){
-						Data data = (Data) bullet.getBody().getUserData();
-						data.bullet.setReadyPickup(true);
-					}
-					else if (bullet.getBody().getUserData() instanceof SBulletData){
-						SBulletData data = (SBulletData) bullet.getBody().getUserData();
-						data.bullet.setReadyPickup(true);
-					}
-					float force = bullet.getBody().getMass()*2f;
-					bullet.getBody().applyLinearImpulse(new Vector2 (0, force), new Vector2 (0,1), true);
-				}
-			}
-			bounceTimer = 100;
-		}
 	}
 
-	@Override
 	public Vector2 getPosition() {return body.getPosition();}
 
-	@Override
 	public Vector2 getWorldCenterPosition() {return body.getWorldCenter();}
 
-	@Override
 	public Vector2 getSize() {
 		return new Vector2(width*2, height*2);
 	}
-	
-	@Override
-	public boolean isLocal() {
-		return isLocal;
+	public void setState(STATE newState){
+		this.state = newState;
+		if(state == STATE.STANDING){
+			jumpCount = 0;
+			System.out.println("Standing");
+		}
 	}
-	
-	@Override
-	public Player getPlayer() {
-		return player;
+
+	public STATE getState(){
+		return state;
 	}
-	@Override
-	public void removeBullet (Bullet bullet){
-		bArray.removeValue(bullet, true);
-		bullet.destroyBullet();
-	}
-	@Override
-	public void addBullet() {
-		bulletCount +=1;
-		
+
+	public void fire() {
+		float mouseX = Gdx.input.getX();
+		float mouseY = Gdx.input.getY();
+		Vector3 mousePos = new Vector3(mouseX, mouseY, 0);
+		camera.unproject(mousePos);
+		Vector2 dist = new Vector2(mousePos.x - body.getPosition().x,
+				mousePos.y - body.getPosition().y);
+		Vector2 yVector = new Vector2(body.getPosition().x,
+				body.getPosition().y + dist.y);
+
+		float degAngle = (float) (MathUtils.atan2(dist.x, dist.y) * MathUtils.radiansToDegrees);
+		System.out.println(degAngle);
+
+		float newDist = height;
+		dist = dist.nor();
+		Vector2 dir = dist.cpy();
+		Vector2 gunPos = dist.scl(newDist);
+		gunPos = body.getPosition().cpy().add(gunPos);
+		SniperBullet sBullet = new SniperBullet(dir, gunPos, world, scale, degAngle, this);
 	}
 }

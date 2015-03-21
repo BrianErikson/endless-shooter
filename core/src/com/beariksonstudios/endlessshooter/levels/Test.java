@@ -11,13 +11,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
-import com.beariksonstudios.endlessshooter.classes.StockClass.RangeCharData;
+import com.badlogic.gdx.math.Vector3;
+import com.beariksonstudios.endlessshooter.classes.Character;
+import com.beariksonstudios.endlessshooter.classes.Character.RangeCharData;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
-import com.beariksonstudios.endlessshooter.core.Character;
+import com.beariksonstudios.endlessshooter.classes.Character;
+import com.beariksonstudios.endlessshooter.classes.Character.STATE;
 import com.beariksonstudios.endlessshooter.core.InputHandler;
-import com.beariksonstudios.endlessshooter.core.PlayerFactory;
-import com.beariksonstudios.endlessshooter.core.PlayerFactory.PlayerType;
 import com.beariksonstudios.endlessshooter.props.Shruiken;
 import com.beariksonstudios.endlessshooter.props.Shruiken.Data;
 import com.beariksonstudios.endlessshooter.props.SniperBullet.SBulletData;
@@ -46,7 +47,7 @@ public class Test implements Screen {
 	private Skin labelSkin;
 	private Debugger debugger;
 	private float UIScale;
-	private Array<Character> characters;
+	private Character character;
 
 	
 	public Test() {
@@ -71,36 +72,47 @@ public class Test implements Screen {
 						body = contact.getFixtureB().getBody();
 					}
 					Object obj = body.getUserData();
-					if (obj instanceof Data){
-						collideBulletBody = body;
-						Data data = (Data) obj;
-						readyPickup = data.bullet.isReadyPickup();
-						characterBulletOwner = data.character;
-						pickupBullet = data.bullet;
-						if (data.bounces >= 2){
-							body.setLinearVelocity(0, 0);
-							data.isRotating = false;
-							body.setUserData(data);
-						}
-						else {
-							data.bounces ++;
-							body.setUserData(data);
-						}
-					}
-					else if (obj instanceof SBulletData){
-						collideBulletBody = body;
-						SBulletData sbdata = (SBulletData) obj;
-						readyPickup = sbdata.bullet.isReadyPickup();
-						body.setLinearVelocity(0,0);
-						sbdata.isRotating = false;
-						body.setUserData(sbdata);
-						characterBulletOwner = sbdata.character;
-						pickupBullet = sbdata.bullet;
-					}
-					else if (obj instanceof RangeCharData){
+					if (obj instanceof RangeCharData){
 						RangeCharData cData = (RangeCharData) obj;
 						collideCharBody = body;
 						collideChar = cData.character;
+						
+					}
+				}
+				Object objA = contact.getFixtureA().getBody().getUserData();
+				Object objB = contact.getFixtureB().getBody().getUserData();
+				System.out.println("collision yo");
+				if(objA instanceof RangeCharData){
+					RangeCharData cData = (RangeCharData) objA;
+					collideChar = cData.character;
+					System.out.println("OBJA char");
+					if(objB instanceof String){
+						if(objB == "object ground"){
+							collideChar.setState(STATE.STANDING);
+							System.out.println("objB ground");
+						}
+						else if(objB == "object walls"){
+							if(collideChar.getState() == STATE.JUMPING || collideChar.getState() == STATE.FALLING){
+								System.out.println("objB wall");
+							}
+						}
+					}
+				}
+				else if(objB instanceof RangeCharData){
+					RangeCharData cData = (RangeCharData) objB;
+					collideChar = cData.character;
+					System.out.println("OBJB char");
+					if(objA instanceof String){
+						System.out.println(objA);
+						if(objA.equals("object ground")){
+							collideChar.setState(STATE.STANDING);
+							System.out.println("objA ground");
+						}
+						else if(objA.equals("object walls")){
+							if(collideChar.getState() == STATE.JUMPING || collideChar.getState() == STATE.FALLING){
+								System.out.println("objA wall");
+							}
+						}
 					}
 				}
 				if (readyPickup && collideCharBody != null){
@@ -131,8 +143,8 @@ public class Test implements Screen {
 		zoom = 26.0f;
 		UIScale = 100.0f;
 		worldScale = Assets.WORLD_TO_BOX;
-		camera = new OrthographicCamera(Assets.TILE_SIZE*zoom*Assets.WORLD_TO_BOX, 
-										Assets.TILE_SIZE*zoom*Assets.WORLD_TO_BOX);
+		camera = new OrthographicCamera(Gdx.graphics.getWidth()/zoom, 
+										Gdx.graphics.getHeight()/zoom);
 		UICamera = new OrthographicCamera(camera.viewportWidth*UIScale, camera.viewportHeight*UIScale);
 		batch = new SpriteBatch();
 		batch.setProjectionMatrix(camera.combined);
@@ -143,9 +155,7 @@ public class Test implements Screen {
 		
 		labelSkin = Assets.manager.get("data/uiskin.json", Skin.class);
 		debugger = new Debugger(labelSkin, batch, world);
-		characters = new Array<Character>();
-		characters.add(PlayerFactory.buildChar(true, PlayerType.SNIPER, worldMap.getStartPosition(), 
-											world, worldScale, camera));
+		character = new Character(worldMap.getStartPosition(), world, worldScale, camera);
 		
 		
 		input = new InputHandler();
@@ -165,17 +175,21 @@ public class Test implements Screen {
 		worldMap.draw(camera);
 		boxRenderer.render(world, camera.combined);
 		
+		//Update camera position w/player
+		camera.position.set(character.getPosition(), 0);
+		float cameraMin = 13.2f;
+		if(camera.position.y < cameraMin)
+			camera.position.y = cameraMin;
 		
-		
+		camera.update();
 		batch.setProjectionMatrix(UICamera.combined);
 		batch.begin();
 		debugger.drawFPS(delta, new Vector2(0,UICamera.viewportHeight - debugger.getLabelHeight()));
 		debugger.drawPhys(delta, new Vector2(0,UICamera.viewportHeight - (debugger.getLabelHeight()*2)));
 		
-		for (int i = 0; i < PlayerFactory.getCharacterNum(); i++) {
-			input.handleInput(characters.get(i));
-			characters.get(i).draw(boxRenderer, camera, batch);
-		}
+		
+			input.handleInput(character);
+			character.draw(boxRenderer, camera, batch);
 		
 		batch.end();
 		

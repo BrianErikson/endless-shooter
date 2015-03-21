@@ -12,8 +12,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.beariksonstudios.endlessshooter.classes.Assassin;
-import com.beariksonstudios.endlessshooter.classes.StockClass;
+import com.beariksonstudios.endlessshooter.classes.Character;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
 
@@ -26,7 +25,7 @@ public class Shruiken implements Bullet {
 	private boolean pickupReady;
 	private World world;
 	
-	public Shruiken(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Assassin character){
+	public Shruiken(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Character character){
 		bulletSpeed = 2f;
 		BodyDef bd = new BodyDef();
 		bd.active = true;
@@ -74,7 +73,7 @@ public class Shruiken implements Bullet {
 		public String name = "shruiken";
 		public int bounces = 0;
 		public boolean isRotating = true;
-		public Assassin character = null;
+		public Character character = null;
 		public Shruiken bullet = null;
 		
 		public Data (Shruiken bullet){
@@ -94,20 +93,5 @@ public class Shruiken implements Bullet {
 	public Body getBody() {
 		// TODO Auto-generated method stub
 		return body;
-	}
-	@Override
-	public boolean isReadyPickup() {
-		// TODO Auto-generated method stub
-		return pickupReady;
-	}
-	@Override
-	public void setReadyPickup(boolean state) {
-		pickupReady = state;
-		
-	}
-	@Override
-	public void destroyBullet() {
-		world.destroyBody(body);
-		
 	}
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Buttons;
+import com.beariksonstudios.endlessshooter.classes.Character;
 
 
 public class InputHandler implements InputProcessor{
@@ -28,7 +29,7 @@ public class InputHandler implements InputProcessor{
 	}
 	
 	public void handleInput(Character character) {
-		if (Gdx.input.isKeyPressed(Input.Keys.W)) jump.execute(character);
+		if (Gdx.input.isKeyPressed(Input.Keys.W) && Gdx.input.isKeyJustPressed(Input.Keys.W)) jump.execute(character);
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) jump.execute(character);
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) crouch.execute(character);
 		
