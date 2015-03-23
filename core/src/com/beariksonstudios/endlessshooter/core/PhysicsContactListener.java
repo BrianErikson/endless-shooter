@@ -3,8 +3,11 @@ package com.beariksonstudios.endlessshooter.core;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.beariksonstudios.endlessshooter.classes.Character;
+import com.beariksonstudios.endlessshooter.classes.Enemy;
+import com.beariksonstudios.endlessshooter.props.SniperBullet;
 
 /**
  * Created by Brian on 3/21/2015.
@@ -14,11 +17,19 @@ public class PhysicsContactListener implements ContactListener {
     public void beginContact(Contact contact) {
         Object objA = contact.getFixtureA().getBody().getUserData();
         Object objB = contact.getFixtureB().getBody().getUserData();
+        Object fixA = contact.getFixtureA().getUserData();
+        Object fixB = contact.getFixtureB().getUserData();
 
         if (objA instanceof Character.RangeCharData) {
             handleCharacterContact(objA, objB);
         } else if (objB instanceof Character.RangeCharData) {
             handleCharacterContact(objB, objA);
+        }
+        if (objA instanceof SniperBullet.Data){
+    		handleBulletContact(objA, objB, fixA, fixB);
+        }
+        else if (objB instanceof SniperBullet.Data){
+    		handleBulletContact(objB, objA, fixB, fixA);
         }
     }
 
@@ -47,11 +58,42 @@ public class PhysicsContactListener implements ContactListener {
             System.out.println(other);
             if (other.equals("object ground")) {
                 character.setState(Character.STATE.STANDING);
-            } else if (other.equals("object walls")) {
+            } 
+            else if (other.equals("object walls")) {
                 if (character.getState() == Character.STATE.JUMPING || character.getState() == Character.STATE.FALLING) {
                     //TODO Placeholder
                 }
             }
         }
+    }
+    private void handleBulletContact(Object source, Object other, Object sourceFix, Object otherFix){
+    	SniperBullet.Data data = (SniperBullet.Data) source;
+    	Bullet bullet = data.bullet;
+    	if (other instanceof String) {
+            if (other.equals("object ground")) {
+            	bullet.destroyBullet();
+            } 
+            else if (other.equals("object walls")) {
+            	bullet.destroyBullet();
+            }
+        }
+    	else if (other instanceof Character.RangeCharData){
+    		Character.RangeCharData cData = (Character.RangeCharData) other;
+    		if(cData.character instanceof Enemy){
+    			Enemy enemy = (Enemy) cData.character;
+    			if(otherFix instanceof String){
+    				if(otherFix.equals("head")){
+    					enemy.damageCharacter(bullet.getDamage()*2);
+    					bullet.destroyBullet();
+    				}
+    				else{
+    					enemy.damageCharacter(bullet.getDamage());
+    					bullet.destroyBullet();
+    				}
+	    			
+    			}
+    		}
+    	}
+    	
     }
 }

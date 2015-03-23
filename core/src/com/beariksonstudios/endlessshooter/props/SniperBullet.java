@@ -16,12 +16,13 @@ public class SniperBullet implements Bullet {
     private Body body;
     private Texture texture;
     private Sprite sprite;
-    private SBulletData sbData;
-    private boolean pickupReady;
     private World world;
+    private boolean flagForDestroy;
+    public final float damage;
+    
 
     public SniperBullet(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Character character) {
-        bulletSpeed = 8f;
+        bulletSpeed = 4f;
         BodyDef bd = new BodyDef();
         bd.active = true;
         bd.allowSleep = true;
@@ -30,8 +31,9 @@ public class SniperBullet implements Bullet {
         bd.fixedRotation = true;
         bd.linearVelocity.setAngle(degAngle);
         bd.type = BodyDef.BodyType.DynamicBody;
+        flagForDestroy = false;
+        damage = 34;
 
-        pickupReady = false;
 
         this.world = world;
 
@@ -55,39 +57,43 @@ public class SniperBullet implements Bullet {
 
         body.createFixture(fd);
 
-        sbData = new SBulletData(this);
-        sbData.character = character;
-        body.setUserData(sbData);
-
         shape.dispose();
         Vector2 impulse = new Vector2(bulletSpeed, bulletSpeed).scl(dir);
         body.applyLinearImpulse(impulse, body.getPosition(), true);
+        body.setUserData(new Data(this));
 
     }
 
     public void draw(Camera camera, SpriteBatch batch) {
-        sprite.setPosition(body.getPosition().x - sprite.getWidth() / 2, body.getPosition().y - sprite.getHeight() / 2);
-        if (sbData.isRotating) {
-            sprite.rotate(45f);
+    	if(body != null){
+	        sprite.setPosition(body.getPosition().x - sprite.getWidth() / 2, body.getPosition().y - sprite.getHeight() / 2);
+	        batch.setProjectionMatrix(camera.combined);
+	        sprite.draw(batch);
+	        if(flagForDestroy && !world.isLocked()){
+	        	world.destroyBody(body);
+	        	body = null;
+	        }
         }
-        batch.setProjectionMatrix(camera.combined);
-        sprite.draw(batch);
+        
     }
 
     @Override
     public Body getBody() {
         return body;
     }
-
-    public class SBulletData {
-        public String name = "SniperBullet";
-        public int bounces = 0;
-        public boolean isRotating = true;
-        public Character character = null;
-        public SniperBullet bullet = null;
-
-        public SBulletData(SniperBullet bullet) {
-            this.bullet = bullet;
-        }
+    @Override
+    public void destroyBullet(){
+    	body.setLinearVelocity(0,0);
+    	flagForDestroy = true;
+    }
+    public class Data{
+    	public SniperBullet bullet;
+    	public Data(SniperBullet bullet){
+    		this.bullet = bullet;
+    	}
+    }
+    @Override
+    public float getDamage(){
+    	return damage;
     }
 }

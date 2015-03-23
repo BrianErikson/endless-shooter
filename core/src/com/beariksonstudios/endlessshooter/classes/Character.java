@@ -1,5 +1,7 @@
 package com.beariksonstudios.endlessshooter.classes;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -8,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.beariksonstudios.endlessshooter.core.Assets;
+import com.beariksonstudios.endlessshooter.core.Bullet;
 import com.beariksonstudios.endlessshooter.props.SniperBullet;
 
 public class Character {
@@ -19,9 +22,14 @@ public class Character {
     protected STATE state;
     protected float width;
     protected float height;
+    protected float bodyHeight;
+    protected float headHeight;
     protected Camera camera;
     protected long bounceTimer;
     protected int jumpCount;
+    protected ArrayList<Bullet> bullets;
+    protected float maxHealth;
+    protected float currentHealth;
 
     public Character(Vector2 startPos, World physicsWorld,
                      float scale, Camera camera) {
@@ -31,6 +39,8 @@ public class Character {
         this.world = physicsWorld;
         moveSpeed = 200;
         jumpSpeed = 20;
+        maxHealth = 100;
+        currentHealth = 50;
         BodyDef bd = new BodyDef();
         bd.allowSleep = false; // object does not need to sleep due to player control
         bd.position.set(startPos);
@@ -48,14 +58,33 @@ public class Character {
         PolygonShape shape = new PolygonShape();
         width = 1.6f * 0.3048f * 0.5f * Assets.TILE_SIZE * scale;
         height = 5.9f * 0.3048f * 0.5f * Assets.TILE_SIZE * scale;
-        shape.setAsBox(width, height); // 33% average height and width in feet (converted into meters 0.3048)
+        bodyHeight = height*.75f;
+        shape.setAsBox(width, bodyHeight); // 33% average height and width in feet (converted into meters 0.3048)
         fd.shape = shape;
 
-        this.body.createFixture(fd);
+        Fixture bodyFixture = this.body.createFixture(fd);
+        
+        FixtureDef fdHead = new FixtureDef();
+        fdHead.friction = 0f;
+        fdHead.density = 1.0f; // weight of average human
+        PolygonShape headShape = new PolygonShape();
+        width = 1.6f * 0.3048f * 0.5f * Assets.TILE_SIZE * scale;
+        height = 5.9f * 0.3048f * 0.5f * Assets.TILE_SIZE * scale;
+        headHeight = height*.25f;
+        headShape.setAsBox(width, headHeight, new Vector2(0 ,bodyHeight + (headHeight)), 0 ); // 33% average height and width in feet (converted into meters 0.3048)
+        fdHead.shape = headShape;
+        
+
+        Fixture headFixture = this.body.createFixture(fdHead);
+        
+        bodyFixture.setUserData("body");
+        headFixture.setUserData("head");
+        
+        bullets = new ArrayList<Bullet>();
     }
 
     public void jump() {
-        if ((state == STATE.STANDING || state == STATE.FALLING || state == STATE.JUMPING) && jumpCount < 2) {
+        if ((state == STATE.STANDING || state == STATE.FALLING || state == STATE.JUMPING) && jumpCount < 2 && body != null) {
             state = STATE.JUMPING;
             float force = jumpSpeed;
             body.applyLinearImpulse(new Vector2(0, force), new Vector2(0, 1), true);
@@ -72,28 +101,45 @@ public class Character {
     }
 
     public void moveLeft() {
-        body.setLinearVelocity(new Vector2(-moveSpeed * Gdx.graphics.getDeltaTime(), body.getLinearVelocity().y));
+    	if(body != null)
+    		body.setLinearVelocity(new Vector2(-moveSpeed * Gdx.graphics.getDeltaTime(), body.getLinearVelocity().y));
     }
 
     public void moveRight() {
-        body.setLinearVelocity(new Vector2(moveSpeed * Gdx.graphics.getDeltaTime(), body.getLinearVelocity().y));
+    	if(body != null)
+    		body.setLinearVelocity(new Vector2(moveSpeed * Gdx.graphics.getDeltaTime(), body.getLinearVelocity().y));
     }
 
     public void stop() {
-        body.setLinearVelocity(new Vector2(0, body.getLinearVelocity().y));
+    	if(body != null)
+    		body.setLinearVelocity(new Vector2(0, body.getLinearVelocity().y));
     }
 
     public void draw(Box2DDebugRenderer renderer, Camera camera, SpriteBatch batch) {
-        if (body.getLinearVelocity().y > 0.0f) state = STATE.JUMPING;
-        if (body.getLinearVelocity().y < 0.0f) state = STATE.FALLING;
+	    if(body != null){
+    		if (body.getLinearVelocity().y > 0.0f) state = STATE.JUMPING;
+	        if (body.getLinearVelocity().y < 0.0f) state = STATE.FALLING;
+	        for(int i = 0; i < bullets.size(); i++){
+	        	bullets.get(i).draw(camera, batch);
+	        }
+	        if(currentHealth < 0 && !world.isLocked()){
+	        	world.destroyBody(body);
+	        	body = null;
+	        }
+        }
     }
 
     public Vector2 getPosition() {
-        return body.getPosition();
+    	if(body != null)
+    		return body.getPosition();
+    	return new Vector2(0,0);
+
     }
 
     public Vector2 getWorldCenterPosition() {
-        return body.getWorldCenter();
+    	if(body != null)
+    		return body.getWorldCenter();
+    	return new Vector2(0,0);
     }
 
     public Vector2 getSize() {
@@ -113,23 +159,26 @@ public class Character {
     }
 
     public void fire() {
-        float mouseX = Gdx.input.getX();
-        float mouseY = Gdx.input.getY();
-        Vector3 mousePos = new Vector3(mouseX, mouseY, 0);
-        camera.unproject(mousePos);
-        Vector2 dist = new Vector2(mousePos.x - body.getPosition().x,
-                mousePos.y - body.getPosition().y);
-        Vector2 yVector = new Vector2(body.getPosition().x,
-                body.getPosition().y + dist.y);
-
-        float degAngle = (float) (MathUtils.atan2(dist.x, dist.y) * MathUtils.radiansToDegrees);
-
-        float newDist = height;
-        dist = dist.nor();
-        Vector2 dir = dist.cpy();
-        Vector2 gunPos = dist.scl(newDist);
-        gunPos = body.getPosition().cpy().add(gunPos);
-        SniperBullet sBullet = new SniperBullet(dir, gunPos, world, scale, degAngle, this);
+    	if(body != null){
+	        float mouseX = Gdx.input.getX();
+	        float mouseY = Gdx.input.getY();
+	        Vector3 mousePos = new Vector3(mouseX, mouseY, 0);
+	        camera.unproject(mousePos);
+	        Vector2 dist = new Vector2(mousePos.x - body.getPosition().x,
+	                mousePos.y - body.getPosition().y);
+	        Vector2 yVector = new Vector2(body.getPosition().x,
+	                body.getPosition().y + dist.y);
+	
+	        float degAngle = (float) (MathUtils.atan2(dist.x, dist.y) * MathUtils.radiansToDegrees);
+	
+	        float newDist = height;
+	        dist = dist.nor();
+	        Vector2 dir = dist.cpy();
+	        Vector2 gunPos = dist.scl(newDist);
+	        gunPos = body.getPosition().cpy().add(gunPos);
+	        SniperBullet sBullet = new SniperBullet(dir, gunPos, world, scale, degAngle, this);
+	        bullets.add(sBullet);
+    	}
     }
 
     public enum STATE {
@@ -146,5 +195,9 @@ public class Character {
         public RangeCharData(Character character) {
             this.character = character;
         }
+    }
+    public void damageCharacter(float damage){
+    	currentHealth -= damage;
+    	System.out.println("CurrentHealth " + currentHealth);
     }
 }

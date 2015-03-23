@@ -19,6 +19,7 @@ public class Shruiken implements Bullet {
     private Data data;
     private boolean pickupReady;
     private World world;
+    private float damage;
 
     public Shruiken(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Character character) {
         bulletSpeed = 2f;
@@ -31,6 +32,7 @@ public class Shruiken implements Bullet {
         bd.position.set(pos);
         bd.linearVelocity.setAngle(degAngle);
         bd.type = BodyDef.BodyType.DynamicBody;
+        damage = 51;
 
         pickupReady = false;
         this.world = world;
@@ -91,5 +93,13 @@ public class Shruiken implements Bullet {
         public Data(Shruiken bullet) {
             this.bullet = bullet;
         }
+    }
+    @Override
+    public void destroyBullet(){
+    	world.destroyBody(body);
+    }
+    @Override
+    public float getDamage(){
+    	return damage;
     }
 }

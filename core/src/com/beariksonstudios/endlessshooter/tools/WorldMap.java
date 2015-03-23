@@ -204,4 +204,13 @@ public class WorldMap {
         }
         return colliders;
     }
+    public Vector2 getEnemyStartPosition() {
+        MapLayer layer = layers.get("Enemy start");
+        Rectangle rect = ((RectangleMapObject) layer.getObjects().get(0)).getRectangle();
+        Vector2 pos = new Vector2(0, 0);
+        pos.x = (((rect.getX() / Assets.TILE_SIZE) + ((rect.getWidth() * scale) / 2)));
+        pos.y = (((rect.getY() / Assets.TILE_SIZE) + ((rect.getHeight() * scale) / 2)));
+
+        return new Vector2(pos.x, pos.y);
+    }
 }

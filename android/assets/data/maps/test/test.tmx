@@ -56,4 +56,7 @@
   <object x="1412" y="947" width="120" height="38"/>
   <object x="356" y="832" width="56" height="59"/>
  </objectgroup>
+ <objectgroup name="Enemy start" width="50" height="38">
+  <object x="537" y="1131" width="21" height="13"/>
+ </objectgroup>
 </map>

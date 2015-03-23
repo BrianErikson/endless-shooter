@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.beariksonstudios.endlessshooter.classes.Character;
+import com.beariksonstudios.endlessshooter.classes.Enemy;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.InputHandler;
 import com.beariksonstudios.endlessshooter.core.PhysicsContactListener;
@@ -22,6 +23,7 @@ import com.beariksonstudios.endlessshooter.tools.WorldMap;
 public class Test implements Screen {
     private final Stage uiStage;
     private final Character player;
+    private final Enemy enemy;
     private World world;
     private InputHandler input;
     private WorldMap worldMap;
@@ -53,6 +55,7 @@ public class Test implements Screen {
         uiStage.addActor(debugger);
 
         player = new Character(worldMap.getStartPosition(), world, worldScale, camera);
+        enemy = new Enemy(worldMap.getEnemyStartPosition(), world, worldScale, camera);
         input = new InputHandler();
 
         camera.position.set(player.getPosition(), 0);
@@ -79,14 +82,17 @@ public class Test implements Screen {
 
         input.handleInput(player);
 
+        uiStage.draw();
+        
         batch.begin();
         player.draw(boxRenderer, camera, batch);
+        enemy.draw(boxRenderer, camera, batch);
         batch.end();
-
-        uiStage.draw();
 
         world.step(1 / 50f, 6, 2);
         world.clearForces();
+        
+       
 
     }
 
