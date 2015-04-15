@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.beariksonstudios.endlessshooter.classes.Character;
-import com.beariksonstudios.endlessshooter.classes.Enemy;
+import com.beariksonstudios.endlessshooter.classes.Character;
 import com.beariksonstudios.endlessshooter.props.SniperBullet;
 
 /**
@@ -79,15 +79,15 @@ public class PhysicsContactListener implements ContactListener {
         }
     	else if (other instanceof Character.RangeCharData){
     		Character.RangeCharData cData = (Character.RangeCharData) other;
-    		if(cData.character instanceof Enemy){
-    			Enemy enemy = (Enemy) cData.character;
+    		if(cData.character instanceof Character){
+    			Character character = (Character) cData.character;
     			if(otherFix instanceof String){
     				if(otherFix.equals("head")){
-    					enemy.damageCharacter(bullet.getDamage()*2);
+    					character.damageCharacter(bullet.getDamage()*2);
     					bullet.destroyBullet();
     				}
     				else{
-    					enemy.damageCharacter(bullet.getDamage());
+    					character.damageCharacter(bullet.getDamage());
     					bullet.destroyBullet();
     				}
 	    			

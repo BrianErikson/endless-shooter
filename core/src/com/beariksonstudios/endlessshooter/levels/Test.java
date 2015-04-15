@@ -10,11 +10,15 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.beariksonstudios.endlessshooter.EndlessShooter;
 import com.beariksonstudios.endlessshooter.classes.Character;
 import com.beariksonstudios.endlessshooter.classes.Enemy;
+import com.beariksonstudios.endlessshooter.classes.Player;
 import com.beariksonstudios.endlessshooter.core.Assets;
+import com.beariksonstudios.endlessshooter.core.HUD;
 import com.beariksonstudios.endlessshooter.core.InputHandler;
 import com.beariksonstudios.endlessshooter.core.PhysicsContactListener;
 import com.beariksonstudios.endlessshooter.tools.Debugger;
@@ -22,7 +26,7 @@ import com.beariksonstudios.endlessshooter.tools.WorldMap;
 
 public class Test implements Screen {
     private final Stage uiStage;
-    private final Character player;
+    private final Player player;
     private final Enemy enemy;
     private World world;
     private InputHandler input;
@@ -32,7 +36,8 @@ public class Test implements Screen {
     private SpriteBatch batch;
 
 
-    public Test() {
+    public Test(EndlessShooter endlessShooter) {
+
         world = new World(new Vector2(0, -43.0f), true); // real life gravity mul by ten
         world.setContactListener(new PhysicsContactListener());
         float zoom = 1f;
@@ -41,7 +46,7 @@ public class Test implements Screen {
                 Assets.BOX_TO_WORLD * (Gdx.graphics.getHeight() / Gdx.graphics.getWidth()));
         camera.zoom = zoom;
 
-        uiStage = new Stage(new FitViewport(camera.viewportWidth, camera.viewportHeight));
+        uiStage = new Stage(new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         batch = new SpriteBatch();
         batch.setProjectionMatrix(camera.combined);
         boxRenderer = new Box2DDebugRenderer();
@@ -49,14 +54,12 @@ public class Test implements Screen {
         TiledMap map = Assets.mapLoader.load("data/maps/test/test.tmx");
         worldMap = new WorldMap(world, map, batch, worldScale);
 
-        Skin labelSkin = Assets.manager.get("data/uiskin.json", Skin.class);
-        Debugger debugger = new Debugger(labelSkin, uiStage, world);
-        debugger.setPosition(uiStage.getWidth() / 2, uiStage.getHeight() / 2);
-        uiStage.addActor(debugger);
-
-        player = new Character(worldMap.getStartPosition(), world, worldScale, camera);
-        enemy = new Enemy(worldMap.getEnemyStartPosition(), world, worldScale, camera);
-        input = new InputHandler();
+        player = new Player(worldMap.getStartPosition(), world, worldScale, camera, uiStage);
+        enemy = new Enemy(worldMap.getEnemyStartPosition(), world, worldScale, camera, uiStage);
+        enemy.setTarget(player);
+        input = new InputHandler(endlessShooter);
+        
+        HUD hud = new HUD(uiStage, world);
 
         camera.position.set(player.getPosition(), 0);
         camera.update();
@@ -81,14 +84,15 @@ public class Test implements Screen {
         camera.update();
 
         input.handleInput(player);
-
-        uiStage.draw();
+        player.render();
+        enemy.render();
         
         batch.begin();
         player.draw(boxRenderer, camera, batch);
         enemy.draw(boxRenderer, camera, batch);
         batch.end();
 
+        uiStage.draw();
         world.step(1 / 50f, 6, 2);
         world.clearForces();
         
@@ -132,7 +136,7 @@ public class Test implements Screen {
 
     @Override
     public void dispose() {
-        // TODO Auto-generated method stub
+      
 
     }
 

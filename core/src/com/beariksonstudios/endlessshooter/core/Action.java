@@ -1,13 +1,13 @@
 package com.beariksonstudios.endlessshooter.core;
 
-import com.beariksonstudios.endlessshooter.classes.Character;
+import com.beariksonstudios.endlessshooter.classes.Player;
 
 public interface Action {
 
-    void execute(Character player);
+    void execute(Player player);
 
     class JumpAction implements Action {
-        public void execute(Character player) {
+        public void execute(Player player) {
             player.jump();
         }
     }
@@ -15,7 +15,7 @@ public interface Action {
     class FireAction implements Action {
 
         @Override
-        public void execute(Character player) {
+        public void execute(Player player) {
             player.fire();
         }
     }
@@ -23,7 +23,7 @@ public interface Action {
     class CrouchAction implements Action {
 
         @Override
-        public void execute(Character player) {
+        public void execute(Player player) {
             player.crouch();
         }
     }
@@ -31,7 +31,7 @@ public interface Action {
     class MoveLeftAction implements Action {
 
         @Override
-        public void execute(Character player) {
+        public void execute(Player player) {
             player.moveLeft();
         }
     }
@@ -39,7 +39,7 @@ public interface Action {
     class MoveRightAction implements Action {
 
         @Override
-        public void execute(Character player) {
+        public void execute(Player player) {
             player.moveRight();
         }
     }
@@ -47,7 +47,7 @@ public interface Action {
     class StopAction implements Action {
 
         @Override
-        public void execute(Character player) {
+        public void execute(Player player) {
             player.stop();
 
         }

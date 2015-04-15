@@ -4,11 +4,19 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
 import com.beariksonstudios.endlessshooter.props.SniperBullet;
@@ -30,9 +38,10 @@ public class Character {
     protected ArrayList<Bullet> bullets;
     protected float maxHealth;
     protected float currentHealth;
+    protected ProgressBar healthBar;
 
     public Character(Vector2 startPos, World physicsWorld,
-                     float scale, Camera camera) {
+                     float scale, Camera camera, Stage uiStage) {
         bounceTimer = 100;
         this.camera = camera;
         this.scale = scale;
@@ -73,6 +82,29 @@ public class Character {
         headHeight = height*.25f;
         headShape.setAsBox(width, headHeight, new Vector2(0 ,bodyHeight + (headHeight)), 0 ); // 33% average height and width in feet (converted into meters 0.3048)
         fdHead.shape = headShape;
+        
+        //implement Healthbars on characters
+        Skin labelSkin = Assets.manager.get("data/uiskin.json", Skin.class);
+        Pixmap pixMap = new Pixmap(1,1,Pixmap.Format.RGB888);
+        pixMap.setColor(Color.WHITE);
+        pixMap.fill();
+        Texture texture = new Texture(pixMap);
+        Sprite redSprite = new Sprite(texture);
+        redSprite.setColor(Color.RED);
+        redSprite.setSize(1f, 5f);
+        Sprite greenSprite = new Sprite(texture);
+        greenSprite.setColor(Color.GREEN);
+        greenSprite.setSize(1f, 5f);
+        SpriteDrawable background = new SpriteDrawable(redSprite);
+        SpriteDrawable foreground = new SpriteDrawable(greenSprite);
+        ProgressBar.ProgressBarStyle pbStyle = new ProgressBar.ProgressBarStyle(background, foreground);
+        pbStyle.knobBefore = pbStyle.knob;
+        healthBar = new ProgressBar(0f, 100f, 1f, false, pbStyle);
+        Vector3 healthBarPos = uiStage.getCamera().project(new Vector3(this.getPosition().x, this.getPosition().y, 0));
+        healthBar.setPosition(healthBarPos.x, healthBarPos.y);
+        healthBar.setValue(this.currentHealth);
+        healthBar.setSize(50f, 5f);
+        uiStage.addActor(healthBar);
         
 
         Fixture headFixture = this.body.createFixture(fdHead);
@@ -143,7 +175,7 @@ public class Character {
     }
 
     public Vector2 getSize() {
-        return new Vector2(width * 2, height * 2);
+        return new Vector2(width * 2, (height + headHeight) * 2);
     }
 
     public STATE getState() {
@@ -158,20 +190,16 @@ public class Character {
         }
     }
 
-    public void fire() {
+    public void fire(Vector2 pos) {
     	if(body != null){
-	        float mouseX = Gdx.input.getX();
-	        float mouseY = Gdx.input.getY();
-	        Vector3 mousePos = new Vector3(mouseX, mouseY, 0);
-	        camera.unproject(mousePos);
-	        Vector2 dist = new Vector2(mousePos.x - body.getPosition().x,
-	                mousePos.y - body.getPosition().y);
+	        Vector2 dist = new Vector2(pos.x - body.getPosition().x,
+	                pos.y - body.getPosition().y);
 	        Vector2 yVector = new Vector2(body.getPosition().x,
 	                body.getPosition().y + dist.y);
 	
 	        float degAngle = (float) (MathUtils.atan2(dist.x, dist.y) * MathUtils.radiansToDegrees);
 	
-	        float newDist = height;
+	        float newDist = this.getSize().y;
 	        dist = dist.nor();
 	        Vector2 dir = dist.cpy();
 	        Vector2 gunPos = dist.scl(newDist);
@@ -199,5 +227,8 @@ public class Character {
     public void damageCharacter(float damage){
     	currentHealth -= damage;
     	System.out.println("CurrentHealth " + currentHealth);
+    }
+    public void render(){
+    	this.healthBar.setValue(this.currentHealth);
     }
 }

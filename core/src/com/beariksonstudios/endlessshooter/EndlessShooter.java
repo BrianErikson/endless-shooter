@@ -9,7 +9,7 @@ public class EndlessShooter extends Game {
     @Override
     public void create() {
         Assets.init();
-        this.setScreen(new Test());
+        this.setScreen(new Test(this));
     }
 
     @Override

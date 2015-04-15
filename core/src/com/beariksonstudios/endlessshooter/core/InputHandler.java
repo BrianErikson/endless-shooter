@@ -4,7 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputProcessor;
+import com.beariksonstudios.endlessshooter.EndlessShooter;
 import com.beariksonstudios.endlessshooter.classes.Character;
+import com.beariksonstudios.endlessshooter.classes.Player;
+import com.beariksonstudios.endlessshooter.levels.Test;
 
 
 public class InputHandler implements InputProcessor {
@@ -15,9 +18,10 @@ public class InputHandler implements InputProcessor {
     private Action stop;
     private Action fire;
     private Action secondary;
+    private EndlessShooter endlessShooter;
 
 
-    public InputHandler() {
+    public InputHandler(EndlessShooter endlessShooter) {
         Gdx.input.setInputProcessor(this);
         jump = new Action.JumpAction();
         crouch = new Action.CrouchAction();
@@ -26,9 +30,10 @@ public class InputHandler implements InputProcessor {
         fire = new Action.FireAction();
         stop = new Action.StopAction();
         secondary = new Action.FireAction(); //temp
+        this.endlessShooter = endlessShooter;
     }
 
-    public void handleInput(Character character) {
+    public void handleInput(Player character) {
         if (Gdx.input.isKeyPressed(Input.Keys.W) && Gdx.input.isKeyJustPressed(Input.Keys.W))
             jump.execute(character);
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
@@ -47,6 +52,9 @@ public class InputHandler implements InputProcessor {
             fire.execute(character);
         if (Gdx.input.isButtonPressed(Buttons.RIGHT) && Gdx.input.justTouched())
             secondary.execute(character);
+        if(Gdx.input.isKeyPressed(Input.Keys.P)){
+        	endlessShooter.setScreen(new Test(endlessShooter));
+        }
     }
 
     @Override
