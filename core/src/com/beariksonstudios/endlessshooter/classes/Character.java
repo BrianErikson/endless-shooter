@@ -39,9 +39,11 @@ public class Character {
     protected float maxHealth;
     protected float currentHealth;
     protected ProgressBar healthBar;
+    protected Stage uiStage;
 
     public Character(Vector2 startPos, World physicsWorld,
                      float scale, Camera camera, Stage uiStage) {
+    	this.uiStage = uiStage;
         bounceTimer = 100;
         this.camera = camera;
         this.scale = scale;
@@ -58,7 +60,7 @@ public class Character {
 
         this.body = world.createBody(bd);
         body.setFixedRotation(true);
-        body.setUserData(new RangeCharData(this));
+        body.setUserData(new CharData(this));
 
 
         FixtureDef fd = new FixtureDef();
@@ -106,6 +108,8 @@ public class Character {
         healthBar.setSize(50f, 5f);
         uiStage.addActor(healthBar);
         
+        
+        System.out.println();
 
         Fixture headFixture = this.body.createFixture(fdHead);
         
@@ -155,13 +159,18 @@ public class Character {
 	        	bullets.get(i).draw(camera, batch);
 	        }
 	        if(currentHealth < 0 && !world.isLocked()){
-	        	world.destroyBody(body);
-	        	body = null;
+	        	this.onDeath();
 	        }
         }
     }
 
-    public Vector2 getPosition() {
+    private void onDeath() {
+    	world.destroyBody(body);
+    	body = null;
+		this.healthBar.remove();
+	}
+
+	public Vector2 getPosition() {
     	if(body != null)
     		return body.getPosition();
     	return new Vector2(0,0);
@@ -192,7 +201,7 @@ public class Character {
 
     public void fire(Vector2 pos) {
     	if(body != null){
-	        Vector2 dist = new Vector2(pos.x - body.getPosition().x,
+    		Vector2 dist = new Vector2(pos.x - body.getPosition().x,
 	                pos.y - body.getPosition().y);
 	        Vector2 yVector = new Vector2(body.getPosition().x,
 	                body.getPosition().y + dist.y);
@@ -204,6 +213,7 @@ public class Character {
 	        Vector2 dir = dist.cpy();
 	        Vector2 gunPos = dist.scl(newDist);
 	        gunPos = body.getPosition().cpy().add(gunPos);
+	        
 	        SniperBullet sBullet = new SniperBullet(dir, gunPos, world, scale, degAngle, this);
 	        bullets.add(sBullet);
     	}
@@ -217,10 +227,10 @@ public class Character {
         DYING
     }
 
-    public class RangeCharData {
+    public class CharData {
         public Character character;
 
-        public RangeCharData(Character character) {
+        public CharData(Character character) {
             this.character = character;
         }
     }
@@ -230,5 +240,7 @@ public class Character {
     }
     public void render(){
     	this.healthBar.setValue(this.currentHealth);
+    	Vector3 healthBarPos = camera.project(new Vector3(this.getPosition().x, this.getPosition().y, 0));
+    	this.healthBar.setPosition(healthBarPos.x-25, healthBarPos.y + 65);
     }
 }

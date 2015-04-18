@@ -71,7 +71,13 @@ public class Test implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         worldMap.draw(camera);
-        boxRenderer.render(world, camera.combined);
+        
+        batch.begin();
+        player.draw(boxRenderer, camera, batch);
+        enemy.draw(boxRenderer, camera, batch);
+        batch.end();
+
+        uiStage.draw();
 
         //Update camera position w/player
         camera.position.set(player.getPosition(), 0);
@@ -86,13 +92,9 @@ public class Test implements Screen {
         input.handleInput(player);
         player.render();
         enemy.render();
-        
-        batch.begin();
-        player.draw(boxRenderer, camera, batch);
-        enemy.draw(boxRenderer, camera, batch);
-        batch.end();
+        boxRenderer.render(world, camera.combined);
 
-        uiStage.draw();
+        
         world.step(1 / 50f, 6, 2);
         world.clearForces();
         

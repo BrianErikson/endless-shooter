@@ -20,9 +20,9 @@ public class PhysicsContactListener implements ContactListener {
         Object fixA = contact.getFixtureA().getUserData();
         Object fixB = contact.getFixtureB().getUserData();
 
-        if (objA instanceof Character.RangeCharData) {
+        if (objA instanceof Character.CharData) {
             handleCharacterContact(objA, objB);
-        } else if (objB instanceof Character.RangeCharData) {
+        } else if (objB instanceof Character.CharData) {
             handleCharacterContact(objB, objA);
         }
         if (objA instanceof SniperBullet.Data){
@@ -52,7 +52,7 @@ public class PhysicsContactListener implements ContactListener {
     }
 
     private void handleCharacterContact(Object source, Object other) {
-        Character.RangeCharData cData = (Character.RangeCharData) source;
+        Character.CharData cData = (Character.CharData) source;
         Character character = cData.character;
         if (other instanceof String) {
             System.out.println(other);
@@ -77,8 +77,8 @@ public class PhysicsContactListener implements ContactListener {
             	bullet.destroyBullet();
             }
         }
-    	else if (other instanceof Character.RangeCharData){
-    		Character.RangeCharData cData = (Character.RangeCharData) other;
+    	else if (other instanceof Character.CharData){
+    		Character.CharData cData = (Character.CharData) other;
     		if(cData.character instanceof Character){
     			Character character = (Character) cData.character;
     			if(otherFix instanceof String){

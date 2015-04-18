@@ -32,7 +32,7 @@ public class SniperBullet implements Bullet {
         bd.linearVelocity.setAngle(degAngle);
         bd.type = BodyDef.BodyType.DynamicBody;
         flagForDestroy = false;
-        damage = 34;
+        damage = 5;
 
 
         this.world = world;
