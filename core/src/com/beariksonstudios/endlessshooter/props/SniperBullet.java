@@ -22,7 +22,7 @@ public class SniperBullet implements Bullet {
     
 
     public SniperBullet(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Character character) {
-        bulletSpeed = 4f;
+        bulletSpeed = 1f;
         BodyDef bd = new BodyDef();
         bd.active = true;
         bd.allowSleep = true;
@@ -66,7 +66,7 @@ public class SniperBullet implements Bullet {
 
     public void draw(Camera camera, SpriteBatch batch) {
     	if(body != null){
-	        sprite.setPosition(body.getPosition().x - sprite.getWidth() / 2, body.getPosition().y - sprite.getHeight() / 2);
+	        sprite.setPosition(body.getPosition().x - sprite.getWidth() / 2f, body.getPosition().y - sprite.getHeight() / 2f);
 	        batch.setProjectionMatrix(camera.combined);
 	        sprite.draw(batch);
 	        if(flagForDestroy && !world.isLocked()){

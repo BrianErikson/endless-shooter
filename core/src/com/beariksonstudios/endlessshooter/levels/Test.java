@@ -77,7 +77,6 @@ public class Test implements Screen {
         enemy.draw(boxRenderer, camera, batch);
         batch.end();
 
-        uiStage.draw();
 
         //Update camera position w/player
         camera.position.set(player.getPosition(), 0);
@@ -88,14 +87,16 @@ public class Test implements Screen {
             camera.position.y = cameraMin + cameraHalfHeight;
 
         camera.update();
-
+        
+        uiStage.draw();
+        
         input.handleInput(player);
         player.render();
         enemy.render();
         boxRenderer.render(world, camera.combined);
 
         
-        world.step(1 / 50f, 6, 2);
+        world.step(1f/50f, 6, 2);
         world.clearForces();
         
        
