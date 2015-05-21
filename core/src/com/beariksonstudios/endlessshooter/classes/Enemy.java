@@ -3,6 +3,8 @@ package com.beariksonstudios.endlessshooter.classes;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -16,12 +18,17 @@ import com.beariksonstudios.endlessshooter.props.SniperBullet;
 public class Enemy extends Character{
 	Player target;
 	float shootTimer;
+	private ShapeRenderer sRenderer;
+	private Vector2 lastP1;
+	private Vector2 lastP2;
 
 	public Enemy(Vector2 startPos, World physicsWorld, float scale,
 			Camera camera, Stage uiStage) {
 		super(startPos, physicsWorld, scale, camera, uiStage);
 		shootTimer = 0;
-		
+		sRenderer = new ShapeRenderer();
+		lastP1 = new Vector2(0,0);
+		lastP2 = new Vector2(0,0);
 	}
 	@Override
 	public void draw(Box2DDebugRenderer renderer, Camera camera, SpriteBatch batch){
@@ -33,10 +40,16 @@ public class Enemy extends Character{
 				Vector2 playerPos = target.getPosition();
 				Vector2 offset = playerPos.add(new Vector2(target.getSize().x/2, target.getSize().y/2));
 		        fire(offset);
+		       
 				
 			}
 			shootTimer = 0;
 		}
+
+		sRenderer.setProjectionMatrix(camera.combined);
+        sRenderer.begin(ShapeType.Filled);
+        sRenderer.rectLine(lastP1, lastP2, .02f);
+        sRenderer.end();
 		
 	}
 	public void setTarget(Player p){
@@ -45,6 +58,7 @@ public class Enemy extends Character{
 	 public class RayCallback implements RayCastCallback{
 
     	public boolean shouldFire = false;
+    	public Vector2 point = new Vector2(0,0);
     	@Override
 		public float reportRayFixture(Fixture fixture, Vector2 point,
 				Vector2 normal, float fraction) {
@@ -55,6 +69,7 @@ public class Enemy extends Character{
 				System.out.println("character hit");
 			}
 			//System.out.println("character not hit");
+			this.point = point;
 			return 0;
 		}
     	
@@ -76,8 +91,13 @@ public class Enemy extends Character{
 	        Vector2 playerPos = target.getPosition();
 			Vector2 offset = playerPos.add(new Vector2(target.getSize().x/2, target.getSize().y/2));
 	        gunPos = body.getPosition().cpy().add(gunPos);
+	        
+	        lastP1 = gunPos;
+	        
 			RayCallback callback = new RayCallback();
-	        world.rayCast(callback ,gunPos, offset);
+		
+	        world.rayCast(callback, gunPos, offset);
+	        lastP2 = callback.point;
 	        if(callback.shouldFire){
 		        SniperBullet sBullet = new SniperBullet(dir, gunPos, world, scale, degAngle, this);
 		        bullets.add(sBullet);
