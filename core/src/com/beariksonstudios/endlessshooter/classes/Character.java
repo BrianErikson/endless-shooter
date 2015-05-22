@@ -10,12 +10,10 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
+import com.beariksonstudios.endlessshooter.core.ESActor;
 import com.beariksonstudios.endlessshooter.props.HealthBar;
 
-import java.util.ArrayList;
-import java.util.ListIterator;
-
-public class Character {
+public class Character extends ESActor {
     protected int moveSpeed;
     protected int jumpSpeed;
     protected World world;
@@ -29,7 +27,6 @@ public class Character {
     protected Camera camera;
     protected long bounceTimer;
     protected int jumpCount;
-    protected ArrayList<Bullet> bullets;
     protected float maxHealth;
     protected float currentHealth;
     protected HealthBar healthBar;
@@ -90,8 +87,6 @@ public class Character {
 
         bodyFixture.setUserData("body");
         headFixture.setUserData("head");
-
-        bullets = new ArrayList<Bullet>();
     }
 
     public void jump() {
@@ -101,7 +96,6 @@ public class Character {
             float force = jumpSpeed;
             body.applyLinearImpulse(new Vector2(0, force), new Vector2(0, 1), true);
             jumpCount++;
-            System.out.println(jumpCount);
         }
     }
 
@@ -144,21 +138,11 @@ public class Character {
             this.healthBar.setPosition(healthBarPos.x - this.getSize().x, healthBarPos.y + (this.getSize().y / 1.8f));
         }
 
-        // Remove dead bullets
-        ListIterator<Bullet> list = bullets.listIterator();
-        while (list.hasNext()) {
-            Bullet bullet = list.next();
-            if (bullet.isDead())
-                list.remove();
-        }
+
     }
 
-    public void draw(Box2DDebugRenderer renderer, Camera camera, SpriteBatch batch) {
-        // TODO: Move bullet responsibility to a custom stage/render class
-        for (Bullet bullet : bullets) {
-            bullet.draw(camera, batch);
-        }
-
+    @Override
+    public void draw(Camera camera, SpriteBatch batch) {
         healthBar.draw(batch);
     }
 
@@ -211,7 +195,7 @@ public class Character {
 
             // TODO: Potentially change bullet classes to only have one with variable damage
             Bullet sBullet = new Bullet(dir, gunPos, world, scale, degAngle, this);
-            bullets.add(sBullet);
+            getStage().addActor(sBullet);
         }
     }
 

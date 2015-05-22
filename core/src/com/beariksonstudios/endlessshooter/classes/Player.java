@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
@@ -20,8 +19,8 @@ public class Player extends Character {
     }
 
     @Override
-    public void draw(Box2DDebugRenderer renderer, Camera camera, SpriteBatch batch) {
-        super.draw(renderer, camera, batch);
+    public void draw(Camera camera, SpriteBatch batch) {
+        super.draw(camera, batch);
 
     }
 

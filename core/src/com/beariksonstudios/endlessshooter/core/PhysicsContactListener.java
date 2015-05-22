@@ -51,7 +51,6 @@ public class PhysicsContactListener implements ContactListener {
         Character.CharData cData = (Character.CharData) source;
         Character character = cData.character;
         if (other instanceof String) {
-            System.out.println(other);
             if (other.equals("object ground")) {
                 character.setState(Character.STATE.STANDING);
             } else if (other.equals("object walls")) {
@@ -67,9 +66,9 @@ public class PhysicsContactListener implements ContactListener {
         Bullet bullet = (Bullet) source;
         if (other instanceof String) {
             if (other.equals("object ground")) {
-                bullet.destroyBullet();
+                bullet.kill();
             } else if (other.equals("object walls")) {
-                bullet.destroyBullet();
+                bullet.kill();
             }
         } else if (other instanceof Character.CharData) {
             Character.CharData cData = (Character.CharData) other;
@@ -78,10 +77,10 @@ public class PhysicsContactListener implements ContactListener {
                 if (otherFix instanceof String) {
                     if (otherFix.equals("head")) {
                         character.damageCharacter(bullet.getDamage() * 2);
-                        bullet.destroyBullet();
+                        bullet.kill();
                     } else {
                         character.damageCharacter(bullet.getDamage());
-                        bullet.destroyBullet();
+                        bullet.kill();
                     }
 
                 }

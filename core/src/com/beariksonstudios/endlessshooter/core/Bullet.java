@@ -9,14 +9,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.beariksonstudios.endlessshooter.classes.Character;
 
-public class Bullet {
+public class Bullet extends ESActor {
     public final float damage;
     private float bulletSpeed;
     private Body body;
-    private Texture texture;
     private Sprite sprite;
     private World world;
-    private boolean flagForDestroy;
 
 
     public Bullet(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Character character) {
@@ -29,7 +27,6 @@ public class Bullet {
         bd.fixedRotation = true;
         bd.linearVelocity.setAngle(degAngle);
         bd.type = BodyDef.BodyType.DynamicBody;
-        flagForDestroy = false;
         damage = 5;
 
         this.world = world;
@@ -46,7 +43,7 @@ public class Bullet {
         body.setTransform(pos.add(new Vector2((height * 2) * dir.x, (height * 2) * dir.y)), degAngle);
         fd.shape = shape;
 
-        texture = new Texture(Gdx.files.internal("data/bulletART.png"));
+        Texture texture = new Texture(Gdx.files.internal("data/bulletART.png"));
         sprite = new Sprite(texture);
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
 
@@ -67,28 +64,25 @@ public class Bullet {
                     () / 2f);
             batch.setProjectionMatrix(camera.combined);
             sprite.draw(batch);
-            if (flagForDestroy && !world.isLocked()) {
+            // Work on restructuring removal of ESActors
+            if (isDead() && !world.isLocked()) {
                 world.destroyBody(body);
                 body = null;
             }
         }
-
     }
 
     public Body getBody() {
         return body;
     }
 
-    public void destroyBullet() {
+    @Override
+    public void kill() {
+        super.kill();
         body.setLinearVelocity(0, 0);
-        flagForDestroy = true;
     }
 
     public float getDamage() {
         return damage;
-    }
-
-    public boolean isDead() {
-        return flagForDestroy;
     }
 }

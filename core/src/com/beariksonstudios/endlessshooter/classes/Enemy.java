@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.beariksonstudios.endlessshooter.core.Bullet;
@@ -30,8 +29,8 @@ public class Enemy extends Character {
     }
 
     @Override
-    public void draw(Box2DDebugRenderer renderer, Camera camera, SpriteBatch batch) {
-        super.draw(renderer, camera, batch);
+    public void draw(Camera camera, SpriteBatch batch) {
+        super.draw(camera, batch);
 
         shootTimer += Gdx.graphics.getDeltaTime();
         if (shootTimer > 0.5) {
@@ -78,8 +77,7 @@ public class Enemy extends Character {
                 lastP2 = callback.hits.get(0).point;
 
             if (callback.hits.size() == 1) {
-                Bullet sBullet = new Bullet(dir, gunPos, world, scale, degAngle, this);
-                bullets.add(sBullet);
+                getStage().addActor(new Bullet(dir, gunPos, world, scale, degAngle, this));
             }
 
         }

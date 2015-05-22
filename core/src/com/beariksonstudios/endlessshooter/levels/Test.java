@@ -13,10 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.beariksonstudios.endlessshooter.EndlessShooter;
 import com.beariksonstudios.endlessshooter.classes.Enemy;
 import com.beariksonstudios.endlessshooter.classes.Player;
-import com.beariksonstudios.endlessshooter.core.Assets;
-import com.beariksonstudios.endlessshooter.core.HUD;
-import com.beariksonstudios.endlessshooter.core.InputHandler;
-import com.beariksonstudios.endlessshooter.core.PhysicsContactListener;
+import com.beariksonstudios.endlessshooter.core.*;
 import com.beariksonstudios.endlessshooter.tools.WorldMap;
 
 public class Test implements Screen {
@@ -28,26 +25,23 @@ public class Test implements Screen {
     private WorldMap worldMap;
     private OrthographicCamera camera;
     private Box2DDebugRenderer boxRenderer;
-    private SpriteBatch batch;
+    private ESStage gameStage;
 
 
     public Test(EndlessShooter endlessShooter) {
-
         world = new World(new Vector2(0, -43.0f), true); // real life gravity mul by ten
         world.setContactListener(new PhysicsContactListener());
-        float zoom = 1f;
         float worldScale = Assets.WORLD_TO_BOX;
-        camera = new OrthographicCamera(Assets.BOX_TO_WORLD,
-                Assets.BOX_TO_WORLD * (Gdx.graphics.getHeight() / Gdx.graphics.getWidth()));
-        camera.zoom = zoom;
 
         uiStage = new Stage();
-        batch = new SpriteBatch();
-        batch.setProjectionMatrix(camera.combined);
         boxRenderer = new Box2DDebugRenderer();
 
         TiledMap map = Assets.mapLoader.load("data/maps/test/test.tmx");
+        SpriteBatch batch = new SpriteBatch();
         worldMap = new WorldMap(world, map, batch, worldScale);
+
+        gameStage = new ESStage(1f, batch, worldMap);
+        camera = gameStage.getCamera();
 
         player = new Player(worldMap.getStartPosition(), world, worldScale, camera, uiStage);
         enemy = new Enemy(worldMap.getEnemyStartPosition(), world, worldScale, camera, uiStage);
@@ -58,6 +52,9 @@ public class Test implements Screen {
 
         camera.position.set(player.getPosition(), 0);
         camera.update();
+
+        gameStage.addActor(player);
+        gameStage.addActor(enemy);
     }
 
     public void update() {
@@ -88,12 +85,7 @@ public class Test implements Screen {
 
         update();
 
-        worldMap.draw(camera);
-
-        batch.begin();
-        player.draw(boxRenderer, camera, batch);
-        enemy.draw(boxRenderer, camera, batch);
-        batch.end();
+        gameStage.draw();
 
         boxRenderer.render(world, camera.combined);
 
@@ -102,7 +94,6 @@ public class Test implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        // TODO: Fix UI resizing. Currently wipes out the scene rendering when this is enabled
         uiStage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         camera.viewportWidth = Assets.BOX_TO_WORLD;
@@ -138,7 +129,7 @@ public class Test implements Screen {
     public void dispose() {
         world.dispose();
         uiStage.dispose();
-        batch.dispose();
+        gameStage.dispose();
         boxRenderer.dispose();
     }
 
