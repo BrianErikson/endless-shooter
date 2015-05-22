@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.beariksonstudios.endlessshooter.EndlessShooter;
 import com.beariksonstudios.endlessshooter.classes.Enemy;
 import com.beariksonstudios.endlessshooter.classes.Player;
@@ -42,7 +41,7 @@ public class Test implements Screen {
                 Assets.BOX_TO_WORLD * (Gdx.graphics.getHeight() / Gdx.graphics.getWidth()));
         camera.zoom = zoom;
 
-        uiStage = new Stage(new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        uiStage = new Stage();
         batch = new SpriteBatch();
         batch.setProjectionMatrix(camera.combined);
         boxRenderer = new Box2DDebugRenderer();
@@ -61,17 +60,10 @@ public class Test implements Screen {
         camera.update();
     }
 
-    @Override
-    public void render(float delta) {
-        Gdx.gl.glClearColor(0.30f, 0.50f, 0.95f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        worldMap.draw(camera);
-
-        batch.begin();
-        player.draw(boxRenderer, camera, batch);
-        enemy.draw(boxRenderer, camera, batch);
-        batch.end();
+    public void update() {
+        input.handleInput(player);
+        player.update(Gdx.graphics.getDeltaTime());
+        enemy.update(Gdx.graphics.getDeltaTime());
 
         //Update camera position w/player
         camera.position.set(player.getPosition(), 0);
@@ -83,24 +75,34 @@ public class Test implements Screen {
 
         camera.update();
 
-        uiStage.draw();
+        world.step(Gdx.graphics.getDeltaTime(), 6, 2);
 
-        input.handleInput(player);
-        player.update(Gdx.graphics.getDeltaTime());
-        enemy.update(Gdx.graphics.getDeltaTime());
+        uiStage.act();
+    }
+
+    @Override
+    public void render(float delta) {
+        Gdx.gl.glClearColor(0.30f, 0.50f, 0.95f, 1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        update();
+
+        worldMap.draw(camera);
+
+        batch.begin();
+        player.draw(boxRenderer, camera, batch);
+        enemy.draw(boxRenderer, camera, batch);
+        batch.end();
 
         boxRenderer.render(world, camera.combined);
 
-        world.step(1f / 50f, 6, 2);
-        world.clearForces();
-
-
+        uiStage.draw();
     }
 
     @Override
     public void resize(int width, int height) {
         // TODO: Fix UI resizing. Currently wipes out the scene rendering when this is enabled
-        //uiStage.getViewport().update((int)camera.viewportWidth, (int)camera.viewportHeight);
+        uiStage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         camera.viewportWidth = Assets.BOX_TO_WORLD;
         camera.viewportHeight = Assets.BOX_TO_WORLD * height / width;
@@ -133,7 +135,10 @@ public class Test implements Screen {
 
     @Override
     public void dispose() {
-
+        world.dispose();
+        uiStage.dispose();
+        batch.dispose();
+        boxRenderer.dispose();
     }
 
 }

@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.beariksonstudios.endlessshooter.props.SniperBullet;
+import com.beariksonstudios.endlessshooter.core.Bullet;
 import com.beariksonstudios.endlessshooter.tools.RayCallback;
 
 public class Enemy extends Character {
@@ -78,7 +78,7 @@ public class Enemy extends Character {
                 lastP2 = callback.hits.get(0).point;
 
             if (callback.hits.size() == 1) {
-                SniperBullet sBullet = new SniperBullet(dir, gunPos, world, scale, degAngle, this);
+                Bullet sBullet = new Bullet(dir, gunPos, world, scale, degAngle, this);
                 bullets.add(sBullet);
             }
 

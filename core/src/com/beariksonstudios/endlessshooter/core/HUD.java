@@ -15,7 +15,5 @@ public class HUD {
         Debugger debugger = new Debugger(labelSkin, uiStage, world);
         debugger.setPosition(uiStage.getWidth() * (0.05f), uiStage.getHeight() * (0.90f));
         uiStage.addActor(debugger);
-
     }
-
 }

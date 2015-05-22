@@ -46,15 +46,15 @@ public class Debugger extends Actor {
         table = new Table();
 
         fpsLabel = new Label("FPS: init...", skin);
-        table.addActor(fpsLabel);
+        table.add(fpsLabel);
         table.row();
 
         jointLabel = new Label("Joint Count: init..." + world.getJointCount(), skin);
-        table.addActor(jointLabel);
+        table.add(jointLabel);
         table.row();
 
         bodyLabel = new Label("Body Count: init..." + world.getBodyCount(), skin);
-        table.addActor(bodyLabel);
+        table.add(bodyLabel);
 
         table.pack();
         stage.addActor(table);

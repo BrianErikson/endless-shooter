@@ -2,23 +2,18 @@ package com.beariksonstudios.endlessshooter.classes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
-import com.beariksonstudios.endlessshooter.props.SniperBullet;
+import com.beariksonstudios.endlessshooter.props.HealthBar;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 public class Character {
     protected int moveSpeed;
@@ -37,7 +32,7 @@ public class Character {
     protected ArrayList<Bullet> bullets;
     protected float maxHealth;
     protected float currentHealth;
-    protected ProgressBar healthBar;
+    protected HealthBar healthBar;
     protected Stage uiStage;
 
     public Character(Vector2 startPos, World physicsWorld,
@@ -84,26 +79,12 @@ public class Character {
         fdHead.shape = headShape;
 
         //implement Health bars on characters
-        Pixmap pixMap = new Pixmap(1, 1, Pixmap.Format.RGB888);
-        pixMap.setColor(Color.WHITE);
-        pixMap.fill();
-        Texture texture = new Texture(pixMap);
-        Sprite redSprite = new Sprite(texture);
-        redSprite.setColor(Color.RED);
-        redSprite.setSize(1f, 5f);
-        Sprite greenSprite = new Sprite(texture);
-        greenSprite.setColor(Color.GREEN);
-        greenSprite.setSize(1f, 5f);
-        SpriteDrawable background = new SpriteDrawable(redSprite);
-        SpriteDrawable foreground = new SpriteDrawable(greenSprite);
-        ProgressBar.ProgressBarStyle pbStyle = new ProgressBar.ProgressBarStyle(background, foreground);
-        pbStyle.knobBefore = pbStyle.knob;
-        healthBar = new ProgressBar(0f, 100f, 1f, false, pbStyle);
+        healthBar = new HealthBar(100, 0, 100, new Vector2(0.1f, 0.05f));
         Vector3 healthBarPos = uiStage.getCamera().project(new Vector3(this.getPosition().x, this.getPosition().y, 0));
         healthBar.setPosition(healthBarPos.x, healthBarPos.y);
-        healthBar.setValue(this.currentHealth);
-        healthBar.setSize(50f, 5f);
-        uiStage.addActor(healthBar);
+        healthBar.setHealth((int)this.currentHealth);
+        healthBar.setSize(1f, 0.2f);
+        //uiStage.addActor(healthBar);
 
         Fixture headFixture = this.body.createFixture(fdHead);
 
@@ -157,23 +138,32 @@ public class Character {
             }
 
             // Health bar
-            this.healthBar.setValue(this.currentHealth);
-            Vector3 healthBarPos = camera.project(new Vector3(this.getPosition().x, this.getPosition().y, 0));
-            this.healthBar.setPosition(healthBarPos.x - 25, healthBarPos.y + 65);
+            this.healthBar.setHealth((int)this.currentHealth);
+            Vector2 healthBarPos = this.getPosition();
+            this.healthBar.setPosition(healthBarPos.x - this.getSize().x, healthBarPos.y + (this.getSize().y / 1.8f));
+        }
+
+        // Remove dead bullets
+        ListIterator<Bullet> list = bullets.listIterator();
+        while (list.hasNext()) {
+            Bullet bullet = list.next();
+            if (bullet.isDead())
+                list.remove();
         }
     }
 
     public void draw(Box2DDebugRenderer renderer, Camera camera, SpriteBatch batch) {
-        // TODO: Move bullet drawing responsibility to a custom stage/render class
+        // TODO: Move bullet responsibility to a custom stage/render class
         for (Bullet bullet : bullets) {
             bullet.draw(camera, batch);
         }
+
+        healthBar.draw(batch);
     }
 
     private void onDeath() {
         world.destroyBody(body);
         body = null;
-        this.healthBar.remove();
     }
 
     public Vector2 getPosition() {
@@ -219,7 +209,7 @@ public class Character {
             gunPos = body.getPosition().cpy().add(gunPos);
 
             // TODO: Potentially change bullet classes to only have one with variable damage
-            SniperBullet sBullet = new SniperBullet(dir, gunPos, world, scale, degAngle, this);
+            Bullet sBullet = new Bullet(dir, gunPos, world, scale, degAngle, this);
             bullets.add(sBullet);
         }
     }

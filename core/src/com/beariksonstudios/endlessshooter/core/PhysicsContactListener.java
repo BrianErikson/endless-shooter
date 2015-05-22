@@ -5,7 +5,6 @@ import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.beariksonstudios.endlessshooter.classes.Character;
-import com.beariksonstudios.endlessshooter.props.SniperBullet;
 
 /**
  * Created by Brian on 3/21/2015.
@@ -23,9 +22,9 @@ public class PhysicsContactListener implements ContactListener {
         } else if (objB instanceof Character.CharData) {
             handleCharacterContact(objB, objA);
         }
-        if (objA instanceof SniperBullet.Data) {
+        if (objA instanceof Bullet) {
             handleBulletContact(objA, objB, fixA, fixB);
-        } else if (objB instanceof SniperBullet.Data) {
+        } else if (objB instanceof Bullet) {
             handleBulletContact(objB, objA, fixB, fixA);
         }
     }
@@ -65,8 +64,7 @@ public class PhysicsContactListener implements ContactListener {
     }
 
     private void handleBulletContact(Object source, Object other, Object sourceFix, Object otherFix) {
-        SniperBullet.Data data = (SniperBullet.Data) source;
-        Bullet bullet = data.bullet;
+        Bullet bullet = (Bullet) source;
         if (other instanceof String) {
             if (other.equals("object ground")) {
                 bullet.destroyBullet();
@@ -75,8 +73,8 @@ public class PhysicsContactListener implements ContactListener {
             }
         } else if (other instanceof Character.CharData) {
             Character.CharData cData = (Character.CharData) other;
-            if (cData.character instanceof Character) {
-                Character character = (Character) cData.character;
+            if (cData.character != null) {
+                Character character = cData.character;
                 if (otherFix instanceof String) {
                     if (otherFix.equals("head")) {
                         character.damageCharacter(bullet.getDamage() * 2);
