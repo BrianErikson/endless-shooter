@@ -10,18 +10,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.beariksonstudios.endlessshooter.EndlessShooter;
-import com.beariksonstudios.endlessshooter.classes.Character;
 import com.beariksonstudios.endlessshooter.classes.Enemy;
 import com.beariksonstudios.endlessshooter.classes.Player;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.HUD;
 import com.beariksonstudios.endlessshooter.core.InputHandler;
 import com.beariksonstudios.endlessshooter.core.PhysicsContactListener;
-import com.beariksonstudios.endlessshooter.tools.Debugger;
 import com.beariksonstudios.endlessshooter.tools.WorldMap;
 
 public class Test implements Screen {
@@ -58,7 +54,7 @@ public class Test implements Screen {
         enemy = new Enemy(worldMap.getEnemyStartPosition(), world, worldScale, camera, uiStage);
         enemy.setTarget(player);
         input = new InputHandler(endlessShooter);
-        
+
         HUD hud = new HUD(uiStage, world);
 
         camera.position.set(player.getPosition(), 0);
@@ -71,12 +67,11 @@ public class Test implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         worldMap.draw(camera);
-        
+
         batch.begin();
         player.draw(boxRenderer, camera, batch);
         enemy.draw(boxRenderer, camera, batch);
         batch.end();
-
 
         //Update camera position w/player
         camera.position.set(player.getPosition(), 0);
@@ -87,19 +82,18 @@ public class Test implements Screen {
             camera.position.y = cameraMin + cameraHalfHeight;
 
         camera.update();
-        
+
         uiStage.draw();
-        
+
         input.handleInput(player);
-        player.render();
-        enemy.render();
+        player.update(Gdx.graphics.getDeltaTime());
+        enemy.update(Gdx.graphics.getDeltaTime());
+
         boxRenderer.render(world, camera.combined);
 
-        
-        world.step(1f/50f, 6, 2);
+        world.step(1f / 50f, 6, 2);
         world.clearForces();
-        
-       
+
 
     }
 
@@ -139,7 +133,6 @@ public class Test implements Screen {
 
     @Override
     public void dispose() {
-      
 
     }
 

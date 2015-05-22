@@ -3,9 +3,7 @@ package com.beariksonstudios.endlessshooter.core;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
-import com.beariksonstudios.endlessshooter.classes.Character;
 import com.beariksonstudios.endlessshooter.classes.Character;
 import com.beariksonstudios.endlessshooter.props.SniperBullet;
 
@@ -25,11 +23,10 @@ public class PhysicsContactListener implements ContactListener {
         } else if (objB instanceof Character.CharData) {
             handleCharacterContact(objB, objA);
         }
-        if (objA instanceof SniperBullet.Data){
-    		handleBulletContact(objA, objB, fixA, fixB);
-        }
-        else if (objB instanceof SniperBullet.Data){
-    		handleBulletContact(objB, objA, fixB, fixA);
+        if (objA instanceof SniperBullet.Data) {
+            handleBulletContact(objA, objB, fixA, fixB);
+        } else if (objB instanceof SniperBullet.Data) {
+            handleBulletContact(objB, objA, fixB, fixA);
         }
     }
 
@@ -58,42 +55,40 @@ public class PhysicsContactListener implements ContactListener {
             System.out.println(other);
             if (other.equals("object ground")) {
                 character.setState(Character.STATE.STANDING);
-            } 
-            else if (other.equals("object walls")) {
-                if (character.getState() == Character.STATE.JUMPING || character.getState() == Character.STATE.FALLING) {
+            } else if (other.equals("object walls")) {
+                if (character.getState() == Character.STATE.JUMPING || character.getState() == Character.STATE
+                        .FALLING) {
                     //TODO Placeholder
                 }
             }
         }
     }
-    private void handleBulletContact(Object source, Object other, Object sourceFix, Object otherFix){
-    	SniperBullet.Data data = (SniperBullet.Data) source;
-    	Bullet bullet = data.bullet;
-    	if (other instanceof String) {
+
+    private void handleBulletContact(Object source, Object other, Object sourceFix, Object otherFix) {
+        SniperBullet.Data data = (SniperBullet.Data) source;
+        Bullet bullet = data.bullet;
+        if (other instanceof String) {
             if (other.equals("object ground")) {
-            	bullet.destroyBullet();
-            } 
-            else if (other.equals("object walls")) {
-            	bullet.destroyBullet();
+                bullet.destroyBullet();
+            } else if (other.equals("object walls")) {
+                bullet.destroyBullet();
+            }
+        } else if (other instanceof Character.CharData) {
+            Character.CharData cData = (Character.CharData) other;
+            if (cData.character instanceof Character) {
+                Character character = (Character) cData.character;
+                if (otherFix instanceof String) {
+                    if (otherFix.equals("head")) {
+                        character.damageCharacter(bullet.getDamage() * 2);
+                        bullet.destroyBullet();
+                    } else {
+                        character.damageCharacter(bullet.getDamage());
+                        bullet.destroyBullet();
+                    }
+
+                }
             }
         }
-    	else if (other instanceof Character.CharData){
-    		Character.CharData cData = (Character.CharData) other;
-    		if(cData.character instanceof Character){
-    			Character character = (Character) cData.character;
-    			if(otherFix instanceof String){
-    				if(otherFix.equals("head")){
-    					character.damageCharacter(bullet.getDamage()*2);
-    					bullet.destroyBullet();
-    				}
-    				else{
-    					character.damageCharacter(bullet.getDamage());
-    					bullet.destroyBullet();
-    				}
-	    			
-    			}
-    		}
-    	}
-    	
+
     }
 }

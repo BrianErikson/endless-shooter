@@ -12,14 +12,14 @@ import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
 
 public class SniperBullet implements Bullet {
+    public final float damage;
     private float bulletSpeed;
     private Body body;
     private Texture texture;
     private Sprite sprite;
     private World world;
     private boolean flagForDestroy;
-    public final float damage;
-    
+
 
     public SniperBullet(Vector2 dir, Vector2 pos, World world, float scale, float degAngle, Character character) {
         bulletSpeed = 1f;
@@ -33,7 +33,6 @@ public class SniperBullet implements Bullet {
         bd.type = BodyDef.BodyType.DynamicBody;
         flagForDestroy = false;
         damage = 5;
-
 
         this.world = world;
 
@@ -65,35 +64,40 @@ public class SniperBullet implements Bullet {
     }
 
     public void draw(Camera camera, SpriteBatch batch) {
-    	if(body != null){
-	        sprite.setPosition(body.getPosition().x - sprite.getWidth() / 2f, body.getPosition().y - sprite.getHeight() / 2f);
-	        batch.setProjectionMatrix(camera.combined);
-	        sprite.draw(batch);
-	        if(flagForDestroy && !world.isLocked()){
-	        	world.destroyBody(body);
-	        	body = null;
-	        }
+        if (body != null) {
+            sprite.setPosition(body.getPosition().x - sprite.getWidth() / 2f, body.getPosition().y - sprite.getHeight
+                    () / 2f);
+            batch.setProjectionMatrix(camera.combined);
+            sprite.draw(batch);
+            if (flagForDestroy && !world.isLocked()) {
+                world.destroyBody(body);
+                body = null;
+            }
         }
-        
+
     }
 
     @Override
     public Body getBody() {
         return body;
     }
+
     @Override
-    public void destroyBullet(){
-    	body.setLinearVelocity(0,0);
-    	flagForDestroy = true;
+    public void destroyBullet() {
+        body.setLinearVelocity(0, 0);
+        flagForDestroy = true;
     }
-    public class Data{
-    	public SniperBullet bullet;
-    	public Data(SniperBullet bullet){
-    		this.bullet = bullet;
-    	}
-    }
+
     @Override
-    public float getDamage(){
-    	return damage;
+    public float getDamage() {
+        return damage;
+    }
+
+    public class Data {
+        public SniperBullet bullet;
+
+        public Data(SniperBullet bullet) {
+            this.bullet = bullet;
+        }
     }
 }

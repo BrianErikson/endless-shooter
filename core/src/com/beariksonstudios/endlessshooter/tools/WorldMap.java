@@ -104,7 +104,7 @@ public class WorldMap {
                     shape.set(polygon.getTransformedVertices());
                 }
                 /*else if (object instanceof PolylineMapObject) {
-			        Polyline chain = ((PolylineMapObject) object).getPolyline();
+                    Polyline chain = ((PolylineMapObject) object).getPolyline();
 			        // do something with chain...
 			    }*/
                 else if (object instanceof CircleMapObject) {
@@ -141,8 +141,8 @@ public class WorldMap {
                         Polygon polygon = ((PolygonMapObject) object).getPolygon();
                         if (polygon.contains(point.x, point.y)) return true;
                     }
-				    /*else if (object instanceof PolylineMapObject) {
-				        Polyline chain = ((PolylineMapObject) object).getPolyline();
+                    /*else if (object instanceof PolylineMapObject) {
+                        Polyline chain = ((PolylineMapObject) object).getPolyline();
 				        // do something with chain...
 				    }*/
                     else if (object instanceof CircleMapObject) {
@@ -204,6 +204,7 @@ public class WorldMap {
         }
         return colliders;
     }
+
     public Vector2 getEnemyStartPosition() {
         MapLayer layer = layers.get("Enemy start");
         Rectangle rect = ((RectangleMapObject) layer.getObjects().get(0)).getRectangle();

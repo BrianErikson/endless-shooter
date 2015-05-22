@@ -9,10 +9,10 @@ public interface Bullet {
     void draw(Camera camera, SpriteBatch batch);
 
     Body getBody();
-    
+
     void destroyBullet();
-    
+
     float getDamage();
-    
-    
+
+
 }

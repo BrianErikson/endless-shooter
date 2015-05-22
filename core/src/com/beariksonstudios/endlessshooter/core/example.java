@@ -46,10 +46,10 @@ public class example implements Screen {
 
         float degAngle = (float) (MathUtils.atan2(distVec.x, distVec.y) * MathUtils.radiansToDegrees);
 
-
         float desiredDist = 100f;
         System.out.println(distVec);
-        distVec = distVec.nor(); // normalized the distance vector (gets magnitude automatically so var mag does not need to be used)
+        distVec = distVec.nor(); // normalized the distance vector (gets magnitude automatically so var mag does not
+        // need to be used)
         System.out.println("   " + distVec);
         Vector2 gunPos = distVec.cpy().scl(desiredDist);
 

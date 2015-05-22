@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputProcessor;
 import com.beariksonstudios.endlessshooter.EndlessShooter;
-import com.beariksonstudios.endlessshooter.classes.Character;
 import com.beariksonstudios.endlessshooter.classes.Player;
 import com.beariksonstudios.endlessshooter.levels.Test;
 
@@ -52,8 +51,8 @@ public class InputHandler implements InputProcessor {
             fire.execute(character);
         if (Gdx.input.isButtonPressed(Buttons.RIGHT) && Gdx.input.justTouched())
             secondary.execute(character);
-        if(Gdx.input.isKeyPressed(Input.Keys.P)){
-        	endlessShooter.setScreen(new Test(endlessShooter));
+        if (Gdx.input.isKeyPressed(Input.Keys.P)) {
+            endlessShooter.setScreen(new Test(endlessShooter));
         }
     }
 
