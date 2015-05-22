@@ -13,10 +13,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
  */
 public class HealthBar {
 
-    private final SpriteDrawable background;
-    private final SpriteDrawable foreground;
-    private final Vector2 position;
-    private final Vector2 size;
+    private SpriteDrawable background;
+    private SpriteDrawable foreground;
+    private Vector2 position;
+    private Vector2 size;
 
     private int curHealth;
     private int minHealth;

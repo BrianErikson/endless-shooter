@@ -10,6 +10,8 @@ public class ESActor {
     private ESStage stage;
     private boolean dead = false;
 
+    public void update(){}
+
     public void draw(Camera camera, SpriteBatch batch){}
 
     public ESStage getStage() {

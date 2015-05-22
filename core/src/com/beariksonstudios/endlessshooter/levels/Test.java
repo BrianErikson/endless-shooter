@@ -43,8 +43,8 @@ public class Test implements Screen {
         gameStage = new ESStage(1f, batch, worldMap);
         camera = gameStage.getCamera();
 
-        player = new Player(worldMap.getStartPosition(), world, worldScale, camera, uiStage);
-        enemy = new Enemy(worldMap.getEnemyStartPosition(), world, worldScale, camera, uiStage);
+        player = new Player(worldMap.getStartPosition(), world, worldScale, camera);
+        enemy = new Enemy(worldMap.getEnemyStartPosition(), world, worldScale, camera);
         enemy.setTarget(player);
         input = new InputHandler(endlessShooter);
 
@@ -61,8 +61,7 @@ public class Test implements Screen {
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
 
         input.handleInput(player);
-        player.update(Gdx.graphics.getDeltaTime());
-        enemy.update(Gdx.graphics.getDeltaTime());
+        gameStage.update();
 
         //Update camera position w/player
         camera.position.set(player.getPosition(), 0);
@@ -73,7 +72,6 @@ public class Test implements Screen {
             camera.position.y = cameraMin + cameraHalfHeight;
 
         camera.update();
-
 
         uiStage.act();
     }
@@ -86,9 +84,7 @@ public class Test implements Screen {
         update();
 
         gameStage.draw();
-
         boxRenderer.render(world, camera.combined);
-
         uiStage.draw();
     }
 

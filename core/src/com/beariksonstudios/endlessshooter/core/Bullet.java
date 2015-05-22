@@ -1,6 +1,5 @@
 package com.beariksonstudios.endlessshooter.core;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -11,6 +10,7 @@ import com.beariksonstudios.endlessshooter.classes.Character;
 
 public class Bullet extends ESActor {
     public final float damage;
+    private Texture texture;
     private float bulletSpeed;
     private Body body;
     private Sprite sprite;
@@ -43,11 +43,12 @@ public class Bullet extends ESActor {
         body.setTransform(pos.add(new Vector2((height * 2) * dir.x, (height * 2) * dir.y)), degAngle);
         fd.shape = shape;
 
-        Texture texture = new Texture(Gdx.files.internal("data/bulletART.png"));
+        texture = Assets.manager.get("data/bulletART.png");
         sprite = new Sprite(texture);
-        sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
 
-        sprite.setScale(0.001f);
+        sprite.setSize(30000f, 30000f);
+        sprite.setScale(10000f);
+        sprite.setOriginCenter();
 
         body.createFixture(fd);
 
@@ -58,13 +59,16 @@ public class Bullet extends ESActor {
 
     }
 
+    @Override
+    public void update() {
+        if (body != null)
+            sprite.setCenter(body.getPosition().x, body.getPosition().y);
+    }
+
     public void draw(Camera camera, SpriteBatch batch) {
+
         if (body != null) {
-            sprite.setPosition(body.getPosition().x - sprite.getWidth() / 2f, body.getPosition().y - sprite.getHeight
-                    () / 2f);
-            batch.setProjectionMatrix(camera.combined);
-            sprite.draw(batch);
-            // Work on restructuring removal of ESActors
+            batch.draw(texture, body.getPosition().x, body.getPosition().y, 600f, 600f);
             if (isDead() && !world.isLocked()) {
                 world.destroyBody(body);
                 body = null;

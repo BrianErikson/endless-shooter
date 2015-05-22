@@ -5,9 +5,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.beariksonstudios.endlessshooter.core.Assets;
 import com.beariksonstudios.endlessshooter.core.Bullet;
 import com.beariksonstudios.endlessshooter.core.ESActor;
@@ -30,11 +28,9 @@ public class Character extends ESActor {
     protected float maxHealth;
     protected float currentHealth;
     protected HealthBar healthBar;
-    protected Stage uiStage;
 
     public Character(Vector2 startPos, World physicsWorld,
-                     float scale, Camera camera, Stage uiStage) {
-        this.uiStage = uiStage;
+                     float scale, Camera camera) {
         bounceTimer = 100;
         this.camera = camera;
         this.scale = scale;
@@ -77,11 +73,9 @@ public class Character extends ESActor {
 
         //implement Health bars on characters
         healthBar = new HealthBar(100, 0, 100, new Vector2(0.1f, 0.05f));
-        Vector3 healthBarPos = uiStage.getCamera().project(new Vector3(this.getPosition().x, this.getPosition().y, 0));
-        healthBar.setPosition(healthBarPos.x, healthBarPos.y);
+        healthBar.setPosition(this.getPosition());
         healthBar.setHealth((int) this.currentHealth);
         healthBar.setSize(1f, 0.2f);
-        //uiStage.addActor(healthBar);
 
         Fixture headFixture = this.body.createFixture(fdHead);
 
@@ -121,7 +115,8 @@ public class Character extends ESActor {
             body.setLinearVelocity(new Vector2(0, body.getLinearVelocity().y));
     }
 
-    public void update(float dt) {
+    @Override
+    public void update() {
         if (body != null) {
             // State machine
             if (body.getLinearVelocity().y > 0.0f) state = STATE.JUMPING;
@@ -133,16 +128,14 @@ public class Character extends ESActor {
 
             // Health bar
             this.healthBar.setHealth((int) this.currentHealth);
-            // Box2DDebugRenderer line 126
             Vector2 healthBarPos = this.getPosition();
             this.healthBar.setPosition(healthBarPos.x - this.getSize().x, healthBarPos.y + (this.getSize().y / 1.8f));
         }
-
-
     }
 
     @Override
     public void draw(Camera camera, SpriteBatch batch) {
+        super.draw(camera, batch);
         healthBar.draw(batch);
     }
 
@@ -180,7 +173,7 @@ public class Character extends ESActor {
     }
 
     public void fire(Vector2 pos) {
-        if (body != null) {
+        if (body != null && getStage() != null) {
             Vector2 dist = new Vector2(pos.x - body.getPosition().x,
                     pos.y - body.getPosition().y);
 
@@ -194,8 +187,7 @@ public class Character extends ESActor {
             gunPos = body.getPosition().cpy().add(gunPos);
 
             // TODO: Potentially change bullet classes to only have one with variable damage
-            Bullet sBullet = new Bullet(dir, gunPos, world, scale, degAngle, this);
-            getStage().addActor(sBullet);
+            getStage().addActor(new Bullet(dir, gunPos, world, scale, degAngle, this));
         }
     }
 

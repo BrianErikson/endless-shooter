@@ -2,6 +2,7 @@ package com.beariksonstudios.endlessshooter.core;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
@@ -19,6 +20,7 @@ public final class Assets {
     public static void init() {
         //manager.load("data/maps/test/test.tmx", TiledMap.class);
         manager.load("data/uiskin.json", Skin.class);
+        manager.load("data/bulletART.png", Texture.class);
         manager.finishLoading();
     }
 

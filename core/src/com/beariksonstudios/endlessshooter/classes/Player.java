@@ -6,14 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public class Player extends Character {
 
 
     public Player(Vector2 startPos, World physicsWorld, float scale,
-                  Camera camera, Stage uiStage) {
-        super(startPos, physicsWorld, scale, camera, uiStage);
+                  Camera camera) {
+        super(startPos, physicsWorld, scale, camera);
         this.maxHealth = 100;
         this.currentHealth = maxHealth;
     }

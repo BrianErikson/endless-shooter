@@ -13,6 +13,8 @@ import java.util.ListIterator;
  */
 public class ESStage {
     private ArrayList<ESActor> actors;
+    private ArrayList<ESActor> additions;
+    private ArrayList<ESActor> removals;
     private SpriteBatch batch;
 
     private OrthographicCamera camera;
@@ -27,24 +29,48 @@ public class ESStage {
         camera.zoom = zoom;
         batch.setProjectionMatrix(camera.combined);
         actors = new ArrayList<ESActor>();
+        additions = new ArrayList<ESActor>();
+        removals = new ArrayList<ESActor>();
     }
 
     public void addActor(ESActor actor) {
         actor.setStage(this);
-        actors.add(actor);
+        additions.add(actor);
     }
 
     public void removeActor(ESActor actor) {
         actor.setStage(null);
-        actors.remove(actor);
+        removals.add(actor);
+    }
+
+    private void updateActorArray() {
+        if (additions.size() > 0) {
+            actors.addAll(additions);
+            additions.clear();
+        }
+        if (removals.size() > 0) {
+            System.out.println(removals.size());
+            for (ESActor actor : removals) {
+                actors.remove(actor);
+            }
+            removals.clear();
+        }
+    }
+
+    public void update() {
+        for (ESActor actor : actors) {
+            actor.update();
+        }
+
+        updateActorArray();
     }
 
     public void draw() {
         map.draw(camera);
 
         batch.begin();
-        for (int i = 0; i < actors.size(); i++) {
-            actors.get(i).draw(camera, batch);
+        for (ESActor actor : actors) {
+            actor.draw(camera, batch);
         }
         batch.end();
 
@@ -56,8 +82,10 @@ public class ESStage {
         ListIterator<ESActor> list = actors.listIterator();
         while (list.hasNext()) {
             ESActor actor = list.next();
-            if (actor.isDead())
+            if (actor.isDead()) {
+                actor.setStage(null);
                 list.remove();
+            }
         }
     }
 
