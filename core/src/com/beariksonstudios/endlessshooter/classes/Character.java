@@ -82,7 +82,7 @@ public class Character {
         healthBar = new HealthBar(100, 0, 100, new Vector2(0.1f, 0.05f));
         Vector3 healthBarPos = uiStage.getCamera().project(new Vector3(this.getPosition().x, this.getPosition().y, 0));
         healthBar.setPosition(healthBarPos.x, healthBarPos.y);
-        healthBar.setHealth((int)this.currentHealth);
+        healthBar.setHealth((int) this.currentHealth);
         healthBar.setSize(1f, 0.2f);
         //uiStage.addActor(healthBar);
 
@@ -138,7 +138,8 @@ public class Character {
             }
 
             // Health bar
-            this.healthBar.setHealth((int)this.currentHealth);
+            this.healthBar.setHealth((int) this.currentHealth);
+            // Box2DDebugRenderer line 126
             Vector2 healthBarPos = this.getPosition();
             this.healthBar.setPosition(healthBarPos.x - this.getSize().x, healthBarPos.y + (this.getSize().y / 1.8f));
         }

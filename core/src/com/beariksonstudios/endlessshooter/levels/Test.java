@@ -61,6 +61,8 @@ public class Test implements Screen {
     }
 
     public void update() {
+        world.step(Gdx.graphics.getDeltaTime(), 6, 2);
+
         input.handleInput(player);
         player.update(Gdx.graphics.getDeltaTime());
         enemy.update(Gdx.graphics.getDeltaTime());
@@ -75,7 +77,6 @@ public class Test implements Screen {
 
         camera.update();
 
-        world.step(Gdx.graphics.getDeltaTime(), 6, 2);
 
         uiStage.act();
     }
